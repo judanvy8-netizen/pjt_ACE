@@ -15,7 +15,8 @@
 ## 3. 처음 실행 (Windows PowerShell)
 1. 최상위 폴더로 이동: `cd C:\CV_StudentProjects` (실제 위치에 맞게 수정)
 2. 최상위 `README_먼저읽기.md`를 보고 Python 3.11용 `.venv_yolo` 가상환경을 먼저 생성.
-3. 필요한 경우 `python download_models.py --only all`로 모델 받기(각 프로젝트별 모델표 참조).
+3. 필요한 경우 `python download_models.py --only all`로 모델 받기(각 프로젝트별 모델표
+   참조).
 4. `data/images`에 실제 입력 파일을 넣고, 프로젝트 폴더의 `run.bat`를 실행.
 
 ```powershell
@@ -23,8 +24,10 @@
 ..\.venv_yolo\Scripts\python.exe source\main.py
 ```
 
-- 현재 `data/`에는 연습용 실물 사진·영상이 없습니다. **교사가 준비한 허가된 데이터를 넣어야 합니다.**
-- 입력 파일 이름이 다르면 `--input` 옵션을 이용하거나 프로그램 상단의 기본 경로를 바꾸세요.
+- 현재 `data/`에는 연습용 실물 사진·영상이 없습니다. **교사가 준비한 허가된 데이터를
+  넣어야 합니다.**
+- 입력 파일 이름이 다르면 `--input` 옵션을 이용하거나 프로그램 상단의 기본 경로를
+  바꾸세요.
 - 자세한 옵션: `..\.venv_yolo\Scripts\python.exe source\main.py --help`
 
 ## 4. 출력과 성공 기준
@@ -52,13 +55,15 @@
 - MP4 파일이 재생되지 않으면 Windows 코덱/출력 코덱을 확인하고 교사에게 문의.
 
 ## 8. 제출물
-`source/main.py`, `outputs/` 결과물 2개 이상, 정답표, `test_cases.csv`, 수정 기록, 3분 시연.
+`source/main.py`, `outputs/` 결과물 2개 이상, 정답표, `test_cases.csv`, 수정 기록, 3분
+시연.
 
 공통 내용은 `../README_먼저읽기.md`, 과제 기능은 `PROJECT.md`를 참조합니다.
 
 ## 9. 예상 출력 파일과 첫 번째 수정 실습
 
-입력명이 기본 예시(`img_001.jpg` 또는 `video_01.mp4`)일 때 `outputs/`에 다음 파일이 생성됩니다.
+입력명이 기본 예시(`img_001.jpg` 또는 `video_01.mp4`)일 때 `outputs/`에 다음 파일이
+생성됩니다.
 
 - `img_001_pets.jpg`
 - `pet_counts.csv`
