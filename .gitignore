@@ -5,4 +5,7 @@ __pycache__/
 .idea/
 *.iml
 shared/models/*.pt
+!shared/models/yolo11n.pt
+!shared/models/yolo11n-cls.pt
+!shared/models/cat_oxford_mobilenetv3.pt
 outputs/*

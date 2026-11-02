@@ -1,4 +1,4 @@
-"""사진 20장의 개·고양이를 검출하고, 검출된 동물을 분류해 저장한다."""
+"""사진을 검출한 뒤 개와 고양이를 YOLO 분류 모델로 분류한다."""
 
 import argparse
 import math
@@ -71,14 +71,17 @@ def class_matches_species(index, species, names):
     return 281 <= index <= 285
 
 
-def best_class_without_ignored(probs):
-    """286·287번을 제외하고 가장 점수가 높은 분류 후보를 고른다."""
+def best_class_without_wild_cats(probs, species):
+    """고양이 후보에서만 286·287번 야생동물을 제외한다."""
     scores = probs.data
-    filtered = scores.clone()
-    for index in IGNORED_CLASS_IDS:
-        if index < len(filtered):
-            filtered[index] = -1
-    best = int(filtered.argmax().item())
+    if species == "cat":
+        filtered = scores.clone()
+        for index in IGNORED_CLASS_IDS:
+            if index < len(filtered):
+                filtered[index] = -1
+        best = int(filtered.argmax().item())
+    else:
+        best = int(scores.argmax().item())
     return best, float(scores[best].item())
 
 
@@ -170,7 +173,7 @@ def main():
             class_result = classifier.predict(
                 square_pad(crop), imgsz=CLASSIFY_SIZE, device="cpu", verbose=False,
             )[0]
-            best, class_confidence = best_class_without_ignored(class_result.probs)
+            best, class_confidence = best_class_without_wild_cats(class_result.probs, species)
             class_name = str(class_result.names[best])
             matched = class_matches_species(best, species, class_result.names)
             readable_name = class_name.replace("_", " ")
@@ -208,15 +211,19 @@ def main():
         class_rows,
     )
     print("\n사진별 분류 결과 (ImageNet 종류 후보)")
-    print("분류 후보에서 286(쿠거)·287(스라소니) 제외")
+    print("ImageNet 고양이 후보에서 286(쿠거)·287(스라소니) 제외")
     print("불확실 = 검출 종류와 분류 1순위가 다름. 확률 기준은 적용하지 않음.")
     for filename, labels in classification_summaries:
         cat_count = len(labels["cat"])
         dog_count = len(labels["dog"])
         print(f"\n{filename} | 고양이 {cat_count}마리, 개 {dog_count}마리")
-        for species, korean_name in (("cat", "고양이"), ("dog", "개")):
-            for number, label in labels[species]:
-                print(f"  검출 #{number} {korean_name}: {label}")
+        detected = [
+            (number, korean_name, label)
+            for species, korean_name in (("cat", "고양이"), ("dog", "개"))
+            for number, label in labels[species]
+        ]
+        for number, korean_name, label in sorted(detected):
+            print(f"  검출 #{number} {korean_name}: {label}")
         if cat_count == 0 and dog_count == 0:
             print("  개·고양이: 없음")
     print(f"사진 {len(files)}장 처리 및 저장: {time.perf_counter() - images_started:.2f}초")
