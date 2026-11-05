@@ -44,10 +44,10 @@ BOX_COLORS = ((255, 100, 100), (100, 220, 100), (100, 200, 255), (255, 100, 220)
 MODEL_LABEL_KO = {
     "Abyssinian": "아비시니안", "Airedale": "에어데일 테리어",
     "Angora": "앙고라 토끼(개·고양이 품종 아님)", "basenji": "바센지",
-    "Bengal": "뱅갈", "Birman": "버만", "bull_mastiff": "불마스티프",
+    "Bengal": "벵갈", "Birman": "버만", "bull_mastiff": "불마스티프",
     "cocker_spaniel": "잉글리쉬 코커 스파니엘",
     "dingo": "딩고(개 품종 후보 밖)",
-    "Egyptian Mau": "이집션마우",
+    "Egyptian Mau": "이집션 마우",
     "guinea_pig": "기니피그(개·고양이 품종 아님)",
     "Labrador_retriever": "래브라도 리트리버", "Lhasa": "라사 압소",
     "Maine Coon": "메인쿤", "Newfoundland": "뉴펀들랜드",
@@ -58,6 +58,18 @@ MODEL_LABEL_KO = {
     "Bombay": "봄베이", "British Shorthair": "브리티시 쇼트헤어",
     "Persian": "페르시안", "Russian Blue": "러시안 블루",
     "Siamese": "샴", "Sphynx": "스핑크스",
+    "pug": "퍼그", "Chihuahua": "치와와", "boxer": "복서",
+    "golden_retriever": "골든 리트리버", "German_shepherd": "저먼 셰퍼드",
+    "dalmatian": "달마티안", "Siberian_husky": "시베리안 허스키",
+    "Blenheim_spaniel": "블렌하임 스패니얼", "basset": "바셋하운드",
+    "Persian_cat": "페르시안 고양이(개 품종 아님)",
+    "miniature_schnauzer": "미니어처 슈나우저", "beagle": "비글",
+    "Pembroke": "펨브로크 웰시 코기", "Great_Dane": "그레이트데인",
+    "Italian_greyhound": "이탈리안 그레이하운드",
+    "Gordon_setter": "고든 세터", "Doberman": "도베르만",
+    "Norwegian_elkhound": "노르웨이 엘크하운드", "Rottweiler": "로트바일러",
+    "Eskimo_dog": "에스키모 도그(허스키 계열)",
+    "Afghan_hound": "아프간 하운드", "whippet": "휘핏",
 }
 LABEL_FONT = ImageFont.truetype("C:/Windows/Fonts/malgun.ttf", 15)
 
