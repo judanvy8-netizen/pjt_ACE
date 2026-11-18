@@ -24,9 +24,9 @@
           <h3 th:text="|${group.expectedTotal}마리 · ${group.photos}장|"></h3>
           <div class="rate-line" th:each="rate : ${group.rates}">
             <span th:text="${rate.version}"></span>
-            <meter min="0" max="100" th:value="${rate.percent()}" th:class="${rate.version}"
+            <meter th:if="${rate.missing != rate.total}" min="0" max="100" th:value="${rate.percent()}" th:class="${rate.version}"
                    th:attr="aria-label=|${rate.version} 일치율|"></meter>
-            <span th:text="|${rate.correct}/${rate.total}|"></span>
+            <span th:text="${rate.missing == rate.total ? '미측정' : rate.correct + '/' + rate.total}"></span>
           </div>
         </div>
       </section>

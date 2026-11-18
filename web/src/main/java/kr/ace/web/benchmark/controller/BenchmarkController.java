@@ -24,6 +24,7 @@ public class BenchmarkController {
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("summaries", benchmark.summaries());
+        model.addAttribute("currentRuns", benchmark.currentRuns());
         model.addAttribute("standardBaseline", benchmark.standardBaseline());
         return "home";
     }
@@ -31,6 +32,7 @@ public class BenchmarkController {
     @GetMapping("/versions")
     public String versions(Model model) {
         model.addAttribute("summaries", benchmark.summaries());
+        model.addAttribute("currentRuns", benchmark.currentRuns());
         model.addAttribute("standardBaseline", benchmark.standardBaseline());
         model.addAttribute("photos", benchmark.truth().values());
         return "versions";

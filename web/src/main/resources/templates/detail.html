@@ -5,7 +5,7 @@
 <header th:replace="~{layout :: header}"></header>
 <main>
   <a th:href="@{/history}">← 분석 이력</a>
-  <a th:if="${roundId}" th:href="@{/rounds/{id}/photos/{input}(id=${roundId},input=${run.inputId})}">세 버전 사진 비교</a>
+  <a th:if="${roundId}" th:href="@{/rounds/{id}/photos/{input}(id=${roundId},input=${run.inputId})}">회차 사진 비교</a>
   <h1 th:text="${run.filename}">분석 상세</h1>
   <p th:if="${notice}" th:text="${notice}" class="notice" role="status"></p>
   <section th:unless="${run.status == 'SUCCEEDED'}" class="panel">

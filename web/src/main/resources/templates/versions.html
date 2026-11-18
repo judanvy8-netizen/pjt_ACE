@@ -32,6 +32,26 @@
         <div th:if="${item.unsupported > 0}" th:text="|미지원 ${item.unsupported}|"></div></td>
     </tr></tbody>
   </table></div>
+  <section id="current-benchmark" th:if="${!currentRuns.isEmpty()}">
+    <h2>현재 사진 40장 실행 결과</h2>
+    <p>교체된 현재 <code>data/images</code> 사진 40장을 네 모델로 다시 실행한 결과입니다. 위의 보관 제출본 기준표와 구분해 표시합니다. 개·고양이가 아닌 사진은 0/0이면 정답 사진 수에 포함하고, 개·고양이로 검출하면 오탐으로 제외합니다.</p>
+    <div class="metric-grid">
+      <div class="panel" th:each="run : ${currentRuns.values()}">
+        <h3 th:text="${run.version}"></h3>
+        <p class="score" th:text="|${run.correct}/${run.total}장|"></p>
+        <p th:text="|비대상 사진 0/0 정답 ${run.nonTargetCorrect}장 · 오탐 ${run.nonTargetFalsePositive}장|"></p>
+      </div>
+    </div>
+    <div class="table-wrap" th:if="${currentRuns.containsKey('main-3')}"><table>
+      <thead><tr><th>사진</th><th>개·고양이 정답</th><th>main-3 예측</th><th>판정</th></tr></thead>
+      <tbody><tr th:each="photo : ${currentRuns.get('main-3').photos}">
+        <td th:text="${photo.filename}"></td>
+        <td th:text="${photo.expected.display()}"></td>
+        <td th:text="${photo.actual.display()}"></td>
+        <td th:text="${photo.falsePositive ? '비대상 동물 오탐' : (photo.matched ? (photo.nonTarget ? '비대상 동물 정확히 제외' : '마릿수 일치') : '마릿수 불일치')}"></td>
+      </tr></tbody>
+    </table></div>
+  </section>
   <section>
     <h2>사진별 비교</h2>
     <div class="actions">

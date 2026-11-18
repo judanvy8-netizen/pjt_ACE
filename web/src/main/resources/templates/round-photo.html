@@ -9,6 +9,11 @@
     <a th:href="@{/history}">분석 이력</a>
   </div>
   <nav th:replace="~{photo-navigation :: controls(${navigation})}"></nav>
+  <div class="review-navigation">
+    <span th:text="|검수 대기 ${reviewRemaining}장|"></span>
+    <a th:if="${nextUnreviewed}" th:href="@{${nextUnreviewed}}">다음 미검수 사진 →</a>
+    <span th:if="${reviewRemaining == 0}">이 회차의 검수를 모두 마쳤습니다.</span>
+  </div>
   <div class="photo-top-grid">
     <div class="photo-heading"><h1 th:text="${photo.filename}"></h1></div>
     <section class="panel rule-help">

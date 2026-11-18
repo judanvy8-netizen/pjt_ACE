@@ -13,7 +13,7 @@
     <p th:if="${entry.headers.isEmpty()}">자료를 읽을 수 없습니다.</p>
     <div class="table-wrap" th:unless="${entry.headers.isEmpty()}"><table>
       <thead><tr><th th:each="key : ${entry.headers}" th:text="${key}"></th></tr></thead>
-      <tbody><tr th:each="row : ${entry.rows}"><td th:each="key : ${entry.headers}" th:text="${row[key]}"></td></tr></tbody>
+      <tbody><tr th:each="row : ${entry.rows}"><td th:each="key : ${entry.headers}" th:text="${row.get(key)}"></td></tr></tbody>
     </table></div>
   </section>
 </main>

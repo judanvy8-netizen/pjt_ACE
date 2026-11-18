@@ -244,3 +244,27 @@ html[data-theme="dark"] .comparison-grid a[data-preview] { background:#122238; }
 .ace-dialog dd { margin:.15rem 0; overflow-wrap:anywhere; }
 @media(max-width:970px) { .photo-top-grid { grid-template-columns:1fr 1fr; } .photo-top-grid .review-badge { justify-self:start; } }
 @media(max-width:700px) { .photo-top-grid,.breed-note-row,.review-note-grid { grid-template-columns:1fr; } }
+
+
+/* The earlier local preview's navigation, search and team details. */
+.team-card { padding: .9rem 1rem; border: 1px solid #dbe5ef; border-radius: .6rem; background: white; }
+.team-card summary { cursor: pointer; }
+.team-card summary strong, .team-card summary span { display: block; }
+.team-card summary span { margin-top: .25rem; color: #52647a; }
+.team-card p { margin: .8rem 0 0; line-height: 1.55; }
+.review-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin: .8rem 0 1rem; color: #52647a; }
+.review-navigation a { display: inline-block; padding: .45rem .7rem; border-radius: .45rem; background: #e4f2ff; font-weight: 700; text-decoration: none; }
+.history-search { display:flex; flex-wrap:wrap; align-items:end; gap:.65rem; margin:1rem 0; }
+.history-search label { margin:0; }
+.history-search input, .history-search select { display:block; min-height:2.5rem; padding:.45rem .6rem; border:1px solid #aebfd1; border-radius:.4rem; background:white; color:inherit; }
+.history-search input { width:min(17rem, 70vw); }
+.history-search a { margin-bottom:.5rem; }
+.history-breed-cell { min-width: 12rem; }
+.history-breed-list { display: flex; flex-direction: column; align-items: flex-start; gap: .2rem; }
+.history-breed-item { white-space: nowrap; }
+.history-breed-item small { color: #52647a; margin-left: .25rem; }
+html[data-theme="dark"] .team-card { background:#1b2b40; border-color:#3c5169; color:#e4edf9; }
+html[data-theme="dark"] .team-card summary span,
+html[data-theme="dark"] .review-navigation,
+html[data-theme="dark"] .history-breed-item small { color:#b8cbe1; }
+html[data-theme="dark"] .review-navigation a { background:#263a52; color:#9bcfff; }

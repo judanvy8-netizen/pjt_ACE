@@ -233,6 +233,10 @@ public class DatasetService {
         return truth.latest(inputId).isPresent();
     }
 
+    public Set<Long> reviewedInputs(String roundId) {
+        return truth.reviewedInputs(runs.round(roundId).stream().map(AnalysisRun::inputId).distinct().toList());
+    }
+
     // 비교 화면의 CSV 미리보기와 DB 평가에 같은 판정식을 사용합니다.
     public Map<String, Verdict> previewVerdicts(Photo photo, Truth reference) {
         var counts = reference.counts();

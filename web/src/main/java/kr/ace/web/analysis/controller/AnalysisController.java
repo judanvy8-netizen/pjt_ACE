@@ -52,19 +52,28 @@ public class AnalysisController {
     }
 
     @GetMapping("/history")
-    public String history(@RequestParam(defaultValue = "all") String filter, Model model) {
+    public String history(@RequestParam(defaultValue = "all") String filter,
+                          @RequestParam(defaultValue = "") String q,
+                          @RequestParam(defaultValue = "all") String variant, Model model) {
         String selected = historyFilter(filter);
-        var entries = service.history(selected);
+        String search = q.strip();
+        if (search.length() > 100) search = search.substring(0, 100);
+        String selectedVariant = Set.of("main", "main-1", "main-2", "main-3").contains(variant) ? variant : "all";
+        var entries = service.history(selected, search, selectedVariant);
         model.addAttribute("entries", entries);
         model.addAttribute("hasFailures", entries.stream().anyMatch(entry -> "FAILED".equals(entry.run().status())));
         model.addAttribute("filter", selected);
+        model.addAttribute("q", search);
+        model.addAttribute("variant", selectedVariant);
         model.addAttribute("summary", service.historySummary());
         return "history";
     }
 
     @PostMapping("/history/failed/delete")
     public String deleteFailed(@RequestParam(required = false) List<String> runIds,
-                               @RequestParam(defaultValue = "all") String filter, RedirectAttributes flash) {
+                               @RequestParam(defaultValue = "all") String filter,
+                               @RequestParam(defaultValue = "") String q,
+                               @RequestParam(defaultValue = "all") String variant, RedirectAttributes flash) {
         try {
             int deleted = service.dismissFailed(runIds);
             flash.addFlashAttribute("notice", deleted == 0 ? "삭제할 실패 기록이 없습니다."
@@ -75,6 +84,8 @@ public class AnalysisController {
             flash.addFlashAttribute("notice", "삭제하지 못했습니다. MySQL 연결을 확인해 주세요.");
         }
         flash.addAttribute("filter", historyFilter(filter));
+        flash.addAttribute("q", q);
+        flash.addAttribute("variant", variant);
         return "redirect:/history";
     }
 

@@ -2,6 +2,9 @@ package kr.ace.web.analysis.repository;
 
 import java.util.List;
 import java.util.Collection;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import kr.ace.web.analysis.model.HistorySummaryDO;
 import java.util.Optional;
 import kr.ace.web.analysis.entity.AnalysisRun;
@@ -66,15 +69,25 @@ public class AnalysisRepository {
               AND e.version=(SELECT MAX(v.version) FROM evaluation v WHERE v.run_id=a.run_id)
             """;
 
-    public List<AnalysisRun> list(String filter) {
+    public List<AnalysisRun> list(String filter, String filename, String model) {
         String condition = switch (filter) {
             case "matched" -> " AND e.is_match=TRUE";
             case "errors" -> " AND (e.is_match=FALSE OR e.breed_correct < e.breed_total)";
             case "failed" -> " AND a.status='FAILED'";
             default -> "";
         };
-        return jdbc.query(SELECT + LATEST_EVALUATION + " WHERE a.status<>'DISMISSED'" + condition
-                + " ORDER BY a.created_at DESC, a.run_id LIMIT 200", RUN);
+        var query = new StringBuilder(SELECT + LATEST_EVALUATION + " WHERE a.status<>'DISMISSED'" + condition);
+        var parameters = new ArrayList<Object>();
+        if (!filename.isBlank()) {
+            query.append(" AND LOCATE(?, i.filename) > 0");
+            parameters.add(filename);
+        }
+        if (!model.equals("all")) {
+            query.append(" AND a.variant=?");
+            parameters.add(model);
+        }
+        query.append(" ORDER BY a.created_at DESC, a.run_id LIMIT 200");
+        return jdbc.query(query.toString(), RUN, parameters.toArray());
     }
 
     public HistorySummaryDO historySummary() {
@@ -129,5 +142,21 @@ public class AnalysisRepository {
                 rs.getDouble("x1"), rs.getDouble("y1"), rs.getDouble("x2"), rs.getDouble("y2"),
                 rs.getDouble("det_score"), rs.getString("breed"), rs.getObject("breed_score", Double.class),
                 rs.getString("class_status")), runId);
+    }
+
+    /** Load the visible history page's detected animals with one query. */
+    public Map<String, List<DetectedPet>> petsForRuns(Collection<String> runIds) {
+        if (runIds.isEmpty()) return Map.of();
+        String placeholders = String.join(",", java.util.Collections.nCopies(runIds.size(), "?"));
+        Map<String, List<DetectedPet>> result = new LinkedHashMap<>();
+        jdbc.query("SELECT * FROM detected_pet WHERE run_id IN (" + placeholders + ") ORDER BY run_id, object_no",
+                rs -> {
+                    result.computeIfAbsent(rs.getString("run_id"), ignored -> new java.util.ArrayList<>())
+                            .add(new DetectedPet(rs.getInt("object_no"), rs.getString("species"),
+                                    rs.getDouble("x1"), rs.getDouble("y1"), rs.getDouble("x2"), rs.getDouble("y2"),
+                                    rs.getDouble("det_score"), rs.getString("breed"),
+                                    rs.getObject("breed_score", Double.class), rs.getString("class_status")));
+                }, runIds.toArray());
+        return result;
     }
 }

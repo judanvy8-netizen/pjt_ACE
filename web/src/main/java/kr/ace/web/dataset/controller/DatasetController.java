@@ -109,8 +109,27 @@ public class DatasetController {
         model.addAttribute("reviewed", service.reviewed(inputId));
         model.addAttribute("reviewable", reference.truth() != null
                 && photo.items().stream().anyMatch(item -> "SUCCEEDED".equals(item.run().status())));
-        model.addAttribute("navigation", PhotoNavigationDO.of("/rounds/" + id + "/photos",
-                service.photoChoices(id), Long.toString(inputId)));
+        var navigation = PhotoNavigationDO.of("/rounds/" + id + "/photos",
+                service.photoChoices(id), Long.toString(inputId));
+        model.addAttribute("navigation", navigation);
+        var reviewedIds = service.reviewedInputs(id);
+        var pendingIds = new java.util.HashSet<Long>();
+        for (var candidate : service.photos(id, null)) {
+            if (reviewedIds.contains(candidate.id()) || candidate.items().stream()
+                    .noneMatch(item -> "SUCCEEDED".equals(item.run().status()))) continue;
+            var candidateRun = candidate.items().get(0).run();
+            if (referenceTruth.find(candidate.filename(), candidateRun.sourcePath()).truth() != null) {
+                pendingIds.add(candidate.id());
+            }
+        }
+        model.addAttribute("reviewRemaining", pendingIds.size());
+        for (int offset = 1; offset < navigation.choices().size(); offset++) {
+            var choice = navigation.choices().get((navigation.index() + offset) % navigation.choices().size());
+            if (pendingIds.contains(Long.parseLong(choice.key()))) {
+                model.addAttribute("nextUnreviewed", navigation.path(choice));
+                break;
+            }
+        }
         var verdicts = java.util.Map.<String, kr.ace.web.evaluation.Verdict>of();
         if (reference.truth() != null) {
             try {

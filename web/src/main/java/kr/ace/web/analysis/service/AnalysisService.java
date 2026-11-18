@@ -99,11 +99,13 @@ public class AnalysisService {
         return runs.pets(runId);
     }
 
-    public List<HistoryItemDO> history(String filter) {
-        var list = runs.list(filter);
+    public List<HistoryItemDO> history(String filter, String filename, String model) {
+        var list = runs.list(filter, filename, model);
         var latest = truth.latestByRuns(list.stream().map(AnalysisRun::runId).toList());
         var reviewed = truth.reviewedInputs(list.stream().map(AnalysisRun::inputId).distinct().toList());
-        return list.stream().map(run -> new HistoryItemDO(run, latest.get(run.runId()), reviewed.contains(run.inputId())))
+        var pets = runs.petsForRuns(list.stream().map(AnalysisRun::runId).toList());
+        return list.stream().map(run -> new HistoryItemDO(run, latest.get(run.runId()),
+                        reviewed.contains(run.inputId()), pets.getOrDefault(run.runId(), List.of())))
                 .toList();
     }
 

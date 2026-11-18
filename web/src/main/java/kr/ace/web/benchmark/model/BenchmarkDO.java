@@ -20,6 +20,11 @@ public final class BenchmarkDO {
                          List<Map<String, String>> classes, boolean classificationWarning, kr.ace.web.evaluation.Verdict verdict) {}
     public record Photo(Truth truth, boolean image, List<Result> results) {}
 
+    public record CurrentPhoto(String filename, Counts expected, Counts actual,
+                               boolean matched, boolean nonTarget, boolean falsePositive) {}
+    public record CurrentRun(String version, int correct, int total, int nonTargetCorrect,
+                             int nonTargetFalsePositive, List<CurrentPhoto> photos) {}
+
     public record Rate(String version, long correct, long total, long missing) {
         public double percent() { return total == 0 ? 0 : 100.0 * correct / total; }
     }

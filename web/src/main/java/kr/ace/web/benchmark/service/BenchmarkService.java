@@ -102,6 +102,49 @@ public class BenchmarkService {
         }).toList();
     }
 
+    /** Current 40-photo CLI runs are shown separately from the archived submission baseline. */
+    public Map<String, CurrentRun> currentRuns() {
+        var expected = truth();
+        var sources = new LinkedHashMap<String, String>();
+        sources.put("main", "outputs/main-current/pet_counts.csv");
+        sources.put("main-1", "outputs/main-1-current/pet_counts.csv");
+        sources.put("main-2", "outputs/main-2-current/pet_counts.csv");
+        sources.put("main-3", "outputs/main-3/pet_counts.csv");
+        var result = new LinkedHashMap<String, CurrentRun>();
+        for (var source : sources.entrySet()) {
+            var csv = files.csv(source.getValue());
+            if (csv.invalidRows() != 0 || !csv.headers().containsAll(List.of("filename", "cat", "dog"))) continue;
+            var predicted = new LinkedHashMap<String, Counts>();
+            boolean invalid = false;
+            for (var row : csv.rows()) {
+                String filename = row.get("filename");
+                Counts counts = counts(row, "cat", "dog");
+                if (filename == null || !expected.containsKey(filename) || counts == null
+                        || predicted.putIfAbsent(filename, counts) != null) {
+                    invalid = true;
+                    break;
+                }
+            }
+            if (invalid || predicted.size() != expected.size()) continue;
+            var photos = new ArrayList<CurrentPhoto>();
+            int correct = 0, nonTargetCorrect = 0, nonTargetFalsePositive = 0;
+            for (var truth : expected.values()) {
+                Counts actual = predicted.get(truth.filename());
+                boolean matched = truth.counts().equals(actual);
+                boolean nonTarget = truth.counts().cats() == 0 && truth.counts().dogs() == 0;
+                boolean falsePositive = nonTarget && !matched;
+                if (matched) correct++;
+                if (nonTarget && matched) nonTargetCorrect++;
+                if (falsePositive) nonTargetFalsePositive++;
+                photos.add(new CurrentPhoto(truth.filename(), truth.counts(), actual,
+                        matched, nonTarget, falsePositive));
+            }
+            result.put(source.getKey(), new CurrentRun(source.getKey(), correct, photos.size(),
+                    nonTargetCorrect, nonTargetFalsePositive, photos));
+        }
+        return result;
+    }
+
     public List<Summary> summaries() {
         var truth = truth();
         var previous = Map.<String, Counts>of();
