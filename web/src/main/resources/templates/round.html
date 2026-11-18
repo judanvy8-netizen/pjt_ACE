@@ -35,7 +35,7 @@
     <h2>사진별 결과</h2>
     <p class="hint">마릿수는 고양이 / 개 순서입니다.</p>
     <div class="table-wrap"><table>
-      <thead><tr><th>사진</th><th>main</th><th>main-1</th><th>main-2</th></tr></thead>
+      <thead><tr><th>사진</th><th>main</th><th>main-1</th><th>main-2</th><th>main-3</th></tr></thead>
       <tbody><tr th:each="photo : ${photos}">
         <th><a th:href="@{/rounds/{id}/photos/{input}(id=${round.id},input=${photo.id})}" th:text="${photo.filename}"></a></th>
         <td th:each="item : ${photo.items}">

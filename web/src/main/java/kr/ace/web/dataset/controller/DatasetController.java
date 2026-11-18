@@ -127,12 +127,13 @@ public class DatasetController {
             @RequestParam(defaultValue = "") String mainNote,
             @RequestParam(defaultValue = "") String main1Note,
             @RequestParam(defaultValue = "") String main2Note,
+            @RequestParam(defaultValue = "") String main3Note,
             @RequestParam(defaultValue = "") String overallNote, RedirectAttributes flash) {
         service.round(id);
         requirePhoto(id, inputId);
         try {
             photoNotes.save(inputId, java.util.Map.of("main", mainNote, "main-1", main1Note,
-                    "main-2", main2Note, "overall", overallNote));
+                    "main-2", main2Note, "main-3", main3Note, "overall", overallNote));
             flash.addFlashAttribute("notice", "비고를 저장했습니다.");
         } catch (IllegalArgumentException e) {
             flash.addFlashAttribute("notice", e.getMessage());

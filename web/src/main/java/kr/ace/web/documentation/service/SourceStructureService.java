@@ -71,10 +71,11 @@ public class SourceStructureService {
                     new Entry("서버", "ai_server.py", "FastAPI 상태 확인과 추론 요청 처리"),
                     new Entry("main", "detection_engine.py", "개·고양이 검출과 마릿수 계산"),
                     new Entry("main-1", "imagenet_engine.py", "검출 이미지의 ImageNet 품종 후보 분류"),
-                    new Entry("main-2", "pet_engine.py", "고양이 전용 품종 분류와 검출 보정")
+                    new Entry("main-2", "pet_engine.py", "고양이 전용 품종 분류와 검출 보정"),
+                    new Entry("main-3", "vit_engine.py", "ViT-B/16 견종 분류와 종류 보정")
             ), ""),
             new Group("source", "버전별 실행 파일", "source/", List.of(
-                    new Entry("CLI", "main.py, main-1.py, main-2.py", "터미널에서 버전별 사진 분석 실행")
+                    new Entry("CLI", "main.py, main-1.py, main-2.py, main-3.py", "터미널에서 버전별 사진 분석 실행")
             ), ""),
             new Group("shared", "공통 이미지 처리", "shared/", List.of(
                     new Entry("공통 코드", "common.py", "이미지 읽기·표준화·저장과 모델 관리")

@@ -21,7 +21,8 @@ public class BenchmarkService {
     private static final List<Version> VERSIONS = List.of(
             new Version("main", "개·고양이 검출", "YOLO로 위치를 찾고 종류별 마릿수를 셉니다."),
             new Version("main-1", "품종 후보 분류", "검출 영역을 잘라 ImageNet 분류기에 전달합니다."),
-            new Version("main-2", "품종 분류와 검출 보정", "고양이 전용 모델, 중복 제거, 넓은 박스 재검출을 적용합니다."));
+            new Version("main-2", "품종 분류와 검출 보정", "고양이 전용 모델, 중복 제거, 넓은 박스 재검출을 적용합니다."),
+            new Version("main-3", "ViT 품종 분류와 종 보정", "YOLO 검출 뒤 ViT-B/16으로 견종·종을 확인하고 Oxford 모델로 묘종을 분류합니다."));
     private final BenchmarkRepository files;
 
     private final BreedRules rules;

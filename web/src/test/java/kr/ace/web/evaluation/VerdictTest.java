@@ -17,7 +17,7 @@ class VerdictTest {
         var pet = new Verdict.Pet("dog", "퍼그");
         var actual = Verdict.compare(0, 2, 0, 1, List.of(pet, pet), List.of(pet), Map.of(), UnaryOperator.identity());
         assertEquals(1, actual.correct());
-        assertEquals("일부 일치 1/2", actual.breedLabel());
+        assertEquals("일부 일치 1/2 · 지원 정보 확인 필요 2", actual.breedLabel());
     }
 
     @Test void parsesSpeciesAndPosition() {

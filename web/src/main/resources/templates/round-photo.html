@@ -91,7 +91,7 @@
     <div class="panel breed-note-field">
       <label th:for="|note-${item.variant}|" th:text="|비고 (${item.variant})|"></label>
       <textarea th:id="|note-${item.variant}|" rows="3" maxlength="1000"
-          th:name="${item.variant == 'main' ? 'mainNote' : (item.variant == 'main-1' ? 'main1Note' : 'main2Note')}"
+          th:name="${item.variant == 'main' ? 'mainNote' : (item.variant == 'main-1' ? 'main1Note' : (item.variant == 'main-2' ? 'main2Note' : 'main3Note'))}"
           th:text="${notes.get(item.variant)}" form="photo-notes-form" placeholder="해당 버전의 비교·판정 비고를 입력하세요."></textarea>
     </div>
   </section>
@@ -102,7 +102,7 @@
     <p th:unless="${reviewed or reviewable}">연결된 CSV 정답과 성공한 분석 결과가 있어야 검수할 수 있습니다.</p>
     <form th:if="${reviewable and !reviewed}" method="post"
           th:action="@{/rounds/{id}/photos/{inputId}/review(id=${round.id},inputId=${photo.id})}">
-      <p>세 모델 결과와 위의 CSV 정답을 확인한 뒤 검수를 저장하세요.</p>
+      <p>네 모델 결과와 위의 CSV 정답을 확인한 뒤 검수를 저장하세요.</p>
       <button type="submit">검수 저장</button>
     </form>
   </section>

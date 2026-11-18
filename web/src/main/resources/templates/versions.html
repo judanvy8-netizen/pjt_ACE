@@ -8,7 +8,7 @@
   <h1>버전 비교</h1>
   <p><a th:href="@{/performance}">성능 검증 그래프와 기준 사진 지도</a></p>
   <p><strong>기준 사진 40장</strong> · <a th:href="@{/versions/datasets}">웹에서 분석한 데이터셋 선택</a></p>
-  <p>세 버전의 제출 결과를 같은 사진의 고양이·개 정답과 비교합니다.</p>
+  <p>네 버전의 결과를 같은 사진의 고양이·개 정답과 비교합니다.</p>
   <div class="table-wrap"><table>
     <thead><tr><th>버전</th><th>주요 기능</th><th>사용 모델</th><th>마릿수 일치</th><th>이전 버전 대비</th><th>누락 · 점검 행</th><th>고양이 / 개 MAE</th><th>개수 판정</th><th>품종 전체 / 지원 기준</th></tr></thead>
     <tbody><tr th:each="item : ${summaries}">
@@ -18,6 +18,7 @@
         <div th:if="${item.version.id == 'main'}">품종 분류 해당 없음</div>
         <div th:if="${item.version.id == 'main-1'}">개·고양이 <code>yolo11n-cls.pt</code></div>
         <div th:if="${item.version.id == 'main-2'}">개 <code>yolo11n-cls.pt</code><br>고양이 <code>cat_oxford_mobilenetv3.pt</code></div>
+        <div th:if="${item.version.id == 'main-3'}">종·견종 <code>ViT-B/16</code><br>묘종 <code>Oxford MobileNetV3</code></div>
       </td>
       <td th:text="|${item.correct} / ${item.total}장|"></td>
       <td th:text="${item.version.id == 'main' ? '첫 버전' : '개선 ' + item.improved + '장 · 새 오답 ' + item.regressed + '장'}"></td>

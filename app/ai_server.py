@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 STORAGE = Path(os.getenv("ACE_STORAGE", str(ROOT / "ACE_STORAGE"))).resolve()
 CLASS_MODEL = MODEL_PATH.with_name("yolo11n-cls.pt")
 CAT_CLASS_MODEL = MODEL_PATH.with_name("cat_oxford_mobilenetv3.pt")
+VIT_MODEL = MODEL_PATH.with_name("vit_b_16-c867db91.pth")
 MAX_BYTES = 15 * 1024 * 1024
 LOCK = Lock()
 logger = logging.getLogger(__name__)
@@ -41,7 +42,7 @@ app = FastAPI(title="ACE AI", lifespan=lifespan)
 class InferRequest(BaseModel):
     run_id: UUID
     relative_path: str
-    version: Literal["main", "main-1", "main-2"] = "main-2"
+    version: Literal["main", "main-1", "main-2", "main-3"] = "main-2"
 
 
 def detection_factory():
@@ -59,7 +60,13 @@ def pet_factory():
     return PetEngine()
 
 
-ENGINE_FACTORIES = {"main": detection_factory, "main-1": imagenet_factory, "main-2": pet_factory}
+def vit_factory():
+    from app.vit_engine import ViTEngine
+    return ViTEngine()
+
+
+ENGINE_FACTORIES = {"main": detection_factory, "main-1": imagenet_factory,
+                    "main-2": pet_factory, "main-3": vit_factory}
 
 
 def get_engine(version):
@@ -74,7 +81,7 @@ def get_engine(version):
 
 @app.get("/api/health")
 def health(deep: bool = False):
-    missing = [p.name for p in (MODEL_PATH, CLASS_MODEL, CAT_CLASS_MODEL) if not p.is_file()]
+    missing = [p.name for p in (MODEL_PATH, CLASS_MODEL, CAT_CLASS_MODEL, VIT_MODEL) if not p.is_file()]
     failures = []
     if deep:
         with LOCK:
@@ -139,7 +146,7 @@ def infer(body: InferRequest):
             "engine_version": f"ace-{body.version}", "models": engine.model_hashes,
             "settings": {"conf": 0.25, "device": "cpu", "coord_space": "standard", "standard_long_side": STANDARD_LONG_SIDE,
                          "source_width": original_image.shape[1], "source_height": original_image.shape[0],
-                         **({"iou": 0.60} if body.version == "main-2" else {})},
+                         **({"iou": 0.60} if body.version in ("main-2", "main-3") else {})},
         }
         temporary = receipt.with_suffix(".tmp")
         temporary.write_text(json.dumps(result, ensure_ascii=False), encoding="utf-8")

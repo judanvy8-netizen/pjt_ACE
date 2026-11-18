@@ -32,10 +32,10 @@
       </section>
       <section class="panel">
         <h2>기준 사진 지도</h2>
-        <p>사진 번호를 선택하면 원본과 세 버전 결과를 비교합니다.</p>
+        <p>사진 번호를 선택하면 원본과 네 버전 결과를 비교합니다.</p>
         <div class="photo-legend hint">
           <span><i class="photo-dot matched"></i> 일치</span><span><i class="photo-dot mismatched"></i> 불일치</span>
-          <span><i class="photo-dot missing"></i> 자료 없음·점검</span><span>순서 main · main-1 · main-2</span>
+          <span><i class="photo-dot missing"></i> 자료 없음·점검</span><span>순서 main · main-1 · main-2 · main-3</span>
         </div>
         <div class="photo-map">
           <a th:each="tile : ${performance.photos}" th:href="@{/versions/photos/{filename}(filename=${tile.filename})}"

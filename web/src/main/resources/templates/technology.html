@@ -25,6 +25,8 @@
         <dd>검출 영역을 원본에서 잘라 ImageNet 분류 모델에 전달합니다.</dd>
         <dt><code>main-2</code> · 고양이 전용 분류와 검출 보정</dt>
         <dd>개는 ImageNet 분류, 고양이는 Oxford 12종 분류 모델을 사용합니다. 중복 검출을 줄이고 넓게 잡힌 고양이 박스를 재검출합니다.</dd>
+        <dt><code>main-3</code> · ViT-B/16 기반 분류</dt>
+        <dd>YOLO가 찾은 개체를 ViT-B/16으로 분류해 견종 후보와 종류를 확인합니다. 강한 반대 증거가 있을 때만 종을 보정하며 묘종은 Oxford 12종 모델을 사용합니다.</dd>
       </dl>
     </section>
     <section class="panel">

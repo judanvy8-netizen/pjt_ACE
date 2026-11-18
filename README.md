@@ -1,6 +1,6 @@
 # ACE 반려동물 사진 분석 웹서비스 · 화면 개선판
 
-사진을 데이터셋으로 등록하고 **분석 시작**을 누르면 Python이 같은 사진을 `main`, `main-1`, `main-2`로 각각 처리합니다. 웹에서 원본과 세 결과를 비교하고, 기준 사진은 CSV 정답을 확인해 검수할 수 있습니다.
+사진을 데이터셋으로 등록하고 **분석 시작**을 누르면 Python이 같은 사진을 `main`, `main-1`, `main-2`, `main-3`로 각각 처리합니다. 웹에서 원본과 네 결과를 비교하고, 기준 사진은 CSV 정답을 확인해 검수할 수 있습니다.
 
 **기존 ACE Web5에서 업데이트하는 경우** 기존 서버를 종료하고 새 소스로 JAR를 다시 빌드하세요. 같은 MySQL DB와 사진이 들어 있는 `ACE_STORAGE` 경로를 사용합니다. 이번 변경은 기존 Flyway V1 스키마와 호환됩니다.
 
@@ -75,7 +75,7 @@ py -3.11 -m venv .venv
 .\.venv\Scripts\python.exe -m pip check
 ~~~
 
-`shared\models`에 `yolo11n.pt`, `yolo11n-cls.pt`, `cat_oxford_mobilenetv3.pt` 세 파일이 들어 있습니다. 기본 사진 40장은 `data\images`에 있습니다. 의존성 설치와 첫 Gradle 빌드에는 패키지 저장소에 접속할 수 있는 인터넷 연결이 필요합니다.
+`shared\models`에 `yolo11n.pt`, `yolo11n-cls.pt`, `cat_oxford_mobilenetv3.pt` 세 파일이 들어 있습니다. main-3의 공식 ViT-B/16 가중치는 용량이 약 346 MB라 저장소에 포함하지 않습니다. 설치 후 `.\.venv\Scripts\python.exe scripts\download_vit.py`를 실행해 내려받고 SHA-256을 확인합니다. 기본 사진 40장은 `data\images`에 있습니다. 의존성 설치와 첫 Gradle 빌드에는 패키지 저장소에 접속할 수 있는 인터넷 연결이 필요합니다.
 
 ### 2.3 Spring Boot 빌드
 
@@ -115,7 +115,7 @@ Set-Location .\web
 java -jar .\build\libs\ace-web-1.0.0.jar
 ~~~
 
-브라우저에서 [ACE 홈](http://127.0.0.1:8080)을 열고 **사진 분석**을 선택합니다. `data\images\img_001.jpg`를 데이터셋으로 등록하고 **분석 시작**을 누릅니다. 회차 화면에서 성공 3건과 사진별 비교를 확인하세요.
+브라우저에서 [ACE 홈](http://127.0.0.1:8080)을 열고 **사진 분석**을 선택합니다. `data\images\img_001.jpg`를 데이터셋으로 등록하고 **분석 시작**을 누릅니다. 회차 화면에서 성공 4건과 사진별 비교를 확인하세요.
 
 두 서버는 기본값으로 프로젝트 루트의 `ACE_STORAGE`를 공유합니다. Spring을 실행할 때 작업 폴더는 반드시 `web`으로 맞춥니다. 저장 위치를 바꾸면 두 PowerShell 창에서 서버 시작 전에 같은 절대 경로를 지정하세요.
 
@@ -397,3 +397,14 @@ IntelliJ에서 실제 환경값을 입력한 뒤 실행 구성의 **Store as pro
 - `V2__photo_notes.sql` Flyway 마이그레이션이 DB에 `photo_note` 테이블을 추가합니다. 기존 DB는 DROP하지 않습니다.
 - `application-local.properties`는 민감 정보가 있으므로 ZIP에 포함되지 않습니다. 기존 환경변수 `ACE_DB_PASSWORD` 또는 로컬 설정을 사용하세요.
 - 프로젝트를 `C:\LSK\pjt_ACE_web7`에 압축 해제하고 `web` 폴더에서 `gradlew.bat bootJar`를 실행합니다. 기존 WEB6과 동시 실행하는 경우 8080 포트 충돌을 주의하세요.
+
+## main-3 · ViT-B/16 비교 모델
+
+AI 담당자가 제공한 main-3 실행 예시를 설계 참고로 사용했습니다. 위치 검출은 YOLO11n, 잘라낸 개체의 견종·종류 확인은 Torchvision ViT-B/16, 고양이 12품종 분류는 기존 Oxford MobileNetV3가 담당합니다. ViT는 객체 검출기가 아니며 ImageNet의 개 품종 118개와 고양이 일반 범주 5개를 사용합니다. 품종·종류 후보는 수기 정답과 별도로 확인해야 합니다.
+
+~~~powershell
+.\.venv\Scripts\python.exe scripts\download_vit.py
+.\.venv\Scripts\python.exe source\main-3.py --input data\images --output outputs\main-3
+~~~
+
+가중치는 Torchvision 공식 배포본으로 내려받고 SHA-256을 확인합니다. 용량 때문에 GitHub에는 넣지 않습니다. 새 웹 회차는 40장 기준 최대 160건이며, 기존 회차의 세 버전 결과는 그대로 남습니다. 기존 기준선의 main-3 값은 미측정으로 표시됩니다.

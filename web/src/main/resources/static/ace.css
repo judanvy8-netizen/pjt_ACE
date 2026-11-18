@@ -68,8 +68,8 @@ th { background: #edf3fa; }
 #image-preview h2 { font-size: 1rem; margin: .45rem 0; }
 #image-preview img { display: block; width: auto; max-width: 100%; max-height: 78vh; }
 
-/* 사진 비교는 넓은 화면에서 원본과 세 버전을 한 줄에 배치합니다. */
-.comparison-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* 원본과 네 버전을 화면 너비에 맞춰 배치합니다. */
+.comparison-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); }
 .comparison-grid a[data-preview] { position: relative; background: #f0f4f9; border-radius: .35rem; }
 .comparison-grid a[data-preview] img { display: block; height: clamp(8rem, 21vw, 17rem); }
 .zoom-hint {

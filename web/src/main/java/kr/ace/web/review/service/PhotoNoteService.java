@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PhotoNoteService {
-    private static final Set<String> SCOPES = Set.of("main", "main-1", "main-2", "overall");
+    private static final Set<String> SCOPES = Set.of("main", "main-1", "main-2", "main-3", "overall");
     private final JdbcTemplate jdbc;
     public PhotoNoteService(JdbcTemplate jdbc) { this.jdbc = jdbc; }
 

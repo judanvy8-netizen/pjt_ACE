@@ -40,7 +40,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class DatasetService {
     private static final Logger LOG = LoggerFactory.getLogger(DatasetService.class);
-    public static final List<String> VARIANTS = List.of("main", "main-1", "main-2");
+    public static final List<String> VARIANTS = List.of("main", "main-1", "main-2", "main-3");
     private final DatasetRepository datasets;
     private final AiClient ai;
     private final kr.ace.web.evaluation.BreedRules breedRules;

@@ -18,6 +18,10 @@ public class BreedRules {
     public BreedRules(BenchmarkRepository repository) {
         translations = mapping(repository, "data/breed_labels_imagenet_ko.csv", "label");
         aliases = mapping(repository, "data/breed_aliases.csv", "alias");
+        for (var row : repository.csv("data/vit_dog_labels.csv").rows()) {
+            dogLabels.computeIfAbsent("main-3", ignored -> new java.util.HashSet<>())
+                    .add(key(row.get("label")));
+        }
         for (var row : repository.csv("data/breed_vocabulary.csv").rows()) {
             if ("dog".equals(row.get("species")) && row.get("label") != null) {
                 dogLabels.computeIfAbsent(row.get("version"), ignored -> new java.util.HashSet<>())
@@ -49,14 +53,14 @@ public class BreedRules {
         // main-1의 검출 종 검증 범위 281~285와 main-2의 CAT_CLASS_NAMES.
         Stream<String> cats = switch (variant) {
             case "main-1" -> Stream.of("tabby", "tiger_cat", "Persian_cat", "Siamese_cat", "Egyptian_cat");
-            case "main-2" -> Stream.of("Abyssinian", "Bengal", "Birman", "Bombay", "British Shorthair",
+            case "main-2", "main-3" -> Stream.of("Abyssinian", "Bengal", "Birman", "Bombay", "British Shorthair",
                     "Egyptian Mau", "Maine Coon", "Persian", "Ragdoll", "Russian Blue", "Siamese", "Sphynx");
             default -> Stream.empty();
         };
         var result = new HashMap<String, Set<String>>();
         result.put("cat", cats.map(this::normalize).collect(Collectors.toUnmodifiableSet()));
         var dogs = dogLabels.getOrDefault(variant, Set.of());
-        if (dogs.size() == 118 && dogs.stream().allMatch(translations::containsKey)) {
+        if ("main-3".equals(variant) || dogs.size() == 118 && dogs.stream().allMatch(translations::containsKey)) {
             result.put("dog", dogs.stream().map(this::normalize).collect(Collectors.toUnmodifiableSet()));
         }
         return result;
