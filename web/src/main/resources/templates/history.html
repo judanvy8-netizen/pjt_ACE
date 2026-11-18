@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('분석 이력')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main class="wide-main">
+  <h1>분석 이력</h1>
+  <p class="hint">실행 1건은 사진 한 장을 모델 하나로 처리한 결과입니다. 일치율과 평균 절대오차는 평가 완료 건을 기준으로 계산합니다.</p>
+  <dl class="metric-grid history-metrics">
+    <div class="panel"><dt>전체 분석</dt><dd th:text="|${summary.total}건|"></dd></div>
+    <div class="panel"><dt>평가 완료</dt><dd th:text="|${summary.evaluated}건|"></dd></div>
+    <div class="panel"><dt>마릿수 일치</dt><dd th:text="|${summary.matched}건|"></dd></div>
+    <div class="panel"><dt>마릿수 불일치</dt><dd th:text="|${summary.mismatched()}건|"></dd></div>
+    <div class="panel"><dt>마릿수 일치율</dt><dd th:text="${summary.accuracy() == null ? '–' : #numbers.formatDecimal(summary.accuracy(), 1, 1) + '%'}"></dd></div>
+    <div class="panel"><dt>평균 절대오차 · 고양이 / 개</dt>
+      <dd th:text="${summary.catMae == null ? '–' : #numbers.formatDecimal(summary.catMae, 1, 2) + ' / ' + #numbers.formatDecimal(summary.dogMae, 1, 2)}"></dd></div>
+  </dl>
+  <div class="history-workspace">
+    <section class="panel">
+      <h2>분석 기록</h2>
+      <p th:if="${notice}" th:text="${notice}" class="notice" role="status"></p>
+      <div class="history-controls">
+        <nav class="filters" aria-label="분석 이력 보기">
+          <a th:href="@{/history}" th:attr="aria-current=${filter == 'all' ? 'page' : null}">전체</a>
+          <a th:href="@{/history(filter='matched')}" th:attr="aria-current=${filter == 'matched' ? 'page' : null}">마릿수 일치만 보기</a>
+          <a th:href="@{/history(filter='errors')}" th:attr="aria-current=${filter == 'errors' ? 'page' : null}">오답만 보기</a>
+          <a th:href="@{/history(filter='failed')}" th:attr="aria-current=${filter == 'failed' ? 'page' : null}">실패만 보기</a>
+        </nav>
+        <div class="actions" th:if="${hasFailures}">
+          <span data-selected-count aria-live="polite" class="hint">0건 선택</span>
+          <button type="button" class="danger-outline" data-delete-review disabled>선택한 실패 기록 삭제</button>
+        </div>
+      </div>
+      <p th:if="${entries.isEmpty()}">표시할 기록이 없습니다.</p>
+      <form id="failed-history-form" method="post" th:action="@{/history/failed/delete}" th:unless="${entries.isEmpty()}">
+        <input type="hidden" name="filter" th:value="${filter}">
+        <div class="table-wrap history-table">
+          <table>
+            <thead><tr><th><input type="checkbox" data-select-failed aria-label="표에 표시된 실패 기록 전체 선택" disabled></th>
+              <th>사진</th><th>등록 시각</th><th>모델</th><th>고양이 / 개 예측</th><th>고양이 / 개 정답</th><th>평가 결과</th><th>검수 상태</th></tr></thead>
+            <tbody><tr th:each="entry : ${entries}" th:with="run=${entry.run}, ev=${entry.evaluation}, engine=${run.engine ?: run.variant}">
+              <td><input th:if="${run.status == 'FAILED'}" type="checkbox" name="runIds" th:value="${run.runId}"
+                         th:data-photo="${run.filename}" th:data-engine="${engine}" th:attr="aria-label=|${run.filename} ${engine} 선택|"></td>
+              <td>
+                <a th:if="${run.roundId != null}" th:href="@{/rounds/{id}/photos/{inputId}(id=${run.roundId},inputId=${run.inputId})}" th:text="${run.filename}"></a>
+                <a th:unless="${run.roundId != null}" th:href="@{/history/{id}(id=${run.runId})}" th:text="${run.filename}"></a>
+              </td>
+              <td th:text="${#temporals.format(run.createdAt, 'MM-dd HH:mm:ss')}"></td>
+              <td th:text="${engine}"></td>
+              <td th:text="${run.catCount == null ? '–' : run.catCount + ' / ' + run.dogCount}"></td>
+              <td th:text="${ev == null ? '–' : ev.cats + ' / ' + ev.dogs}"></td>
+              <td th:classappend="${run.status == 'FAILED' or (ev != null and !ev.matched)} ? 'failure-text' : ''"
+                  th:text="${run.status == 'FAILED' ? '실패' : (run.status == 'PENDING' ? '처리 대기' : (ev == null ? '미평가' : (ev.matched ? '마릿수 일치' : '마릿수 불일치')))}"></td>
+              <td><span class="review-badge" th:classappend="${entry.reviewed} ? 'reviewed' : ''"
+                        th:text="${entry.reviewed ? '검수완료' : '미검수'}"></span></td>
+            </tr></tbody>
+          </table>
+        </div>
+        <p class="hint" th:if="${entries.size() == 200}">선택한 조건의 최근 200건을 표시합니다.</p>
+        <div class="delete-confirmation" data-delete-confirmation hidden>
+          <h3 data-delete-question tabindex="-1"></h3>
+          <p>원본 사진과 성공 결과는 보존됩니다.</p>
+          <ul data-delete-targets></ul>
+          <div class="actions">
+            <button type="button" class="secondary-button" data-delete-cancel>취소</button>
+            <button type="submit" class="danger-button" data-delete-submit></button>
+          </div>
+        </div>
+      </form>
+    </section>
+    <aside class="panel dataset-guide">
+      <h2>분석 이력 작업 안내</h2>
+      <ol>
+        <li><strong>요약과 필터 확인</strong><p>마릿수 일치율과 평균 절대오차를 확인하세요. <b>오답만 보기</b>에는 마릿수 또는 품종 오답이 표시됩니다.</p></li>
+        <li><strong>사진 결과 비교</strong><p>사진명을 누르면 같은 회차의 원본과 세 버전 결과가 열립니다.</p></li>
+        <li><strong>정답 확인 후 검수 저장</strong><p>CSV 정답과 결과를 비교한 뒤 <b>검수 저장</b>을 누르세요. 목록에서 <b>검수완료</b> 상태를 확인할 수 있습니다.</p></li>
+        <li><strong>실패 기록 삭제</strong><p><b>실패만 보기</b>에서 기록을 선택한 뒤 사진명과 모델, 삭제 건수를 확인하세요.</p></li>
+      </ol>
+      <div class="analysis-tip"><strong>평가 결과와 검수 상태</strong><p>평가 결과 열은 실행 상태 또는 마릿수 비교를 표시합니다. 검수 상태는 사람이 확인하고 저장했는지 보여줍니다.</p></div>
+    </aside>
+  </div>
+</main>
+<script th:src="@{/history-delete.js}" defer></script>
+</body>
+</html>

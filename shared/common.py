@@ -5,14 +5,17 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-from ultralytics import YOLO
+import hashlib
 
 
+STANDARD_LONG_SIDE = 640
 MODEL_PATH = Path(__file__).resolve().parent / "models" / "yolo11n.pt"
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
 
 def yolo():
+    from ultralytics import YOLO
+
     if not MODEL_PATH.is_file():
         raise FileNotFoundError(f"YOLO 모델 파일이 없습니다: {MODEL_PATH}")
     model = YOLO(str(MODEL_PATH))
@@ -54,3 +57,32 @@ def save_csv(path, fields, rows):
         writer = csv.DictWriter(file, fieldnames=fields)
         writer.writeheader()
         writer.writerows(rows)
+
+
+def standard_size(width, height):
+    scale = min(1.0, STANDARD_LONG_SIDE / max(width, height))
+    return max(1, round(width * scale)), max(1, round(height * scale))
+
+
+def standardize_image(image):
+    height, width = image.shape[:2]
+    size = standard_size(width, height)
+    if size == (width, height):
+        return image.copy()
+    return cv2.resize(image, size, interpolation=cv2.INTER_AREA)
+
+
+def standard_objects(objects, width, height):
+    result = []
+    for item in objects:
+        x1, y1, x2, y2 = item["box"]
+        coords = [round(max(0, min(value, limit)), 2)
+                  for value, limit in zip((x1, y1, x2, y2), (width, height, width, height))]
+        if coords[0] >= coords[2] or coords[1] >= coords[3]:
+            raise RuntimeError("표준 좌표의 검출 박스가 비어 있습니다.")
+        result.append(dict(item, box=coords))
+    return result
+
+
+def model_hashes(*paths):
+    return {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}

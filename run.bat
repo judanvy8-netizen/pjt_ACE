@@ -1,5 +1,7 @@
 @echo off
 cd /d "%~dp0"
-"..\.venv_yolo\Scripts\python.exe" "source\main.py"
-if errorlevel 1 echo [ERROR] Please read README.md.
-pause
+if not exist ".venv\Scripts\python.exe" (
+    echo Create .venv first. See README.md.
+    exit /b 1
+)
+".venv\Scripts\python.exe" "source\main.py" %*

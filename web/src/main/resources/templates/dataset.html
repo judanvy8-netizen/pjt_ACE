@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('데이터셋 상세')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main class="dataset-workspace">
+  <div class="dataset-controls">
+    <a th:href="@{/analyze}">← 데이터셋 목록</a>
+    <h1 th:text="${dataset.name}"></h1>
+    <p th:if="${notice}" class="notice" th:text="${notice}"></p>
+    <p th:text="|등록 ${dataset.photoCount}장 · 분석 회차당 ${dataset.photoCount * 3}개 결과|"></p>
+    <form method="post" th:action="@{/datasets/{id}/rounds(id=${dataset.id})}">
+      <input type="hidden" name="token" th:value="${token}">
+      <button type="submit" th:text="${rounds.isEmpty() ? '분석 시작' : '새 회차 분석 시작'}"></button>
+    </form>
+    <section>
+      <h2>분석 회차</h2>
+      <p th:if="${rounds.isEmpty()}">아직 분석한 회차가 없습니다.</p>
+      <ul><li th:each="round : ${rounds}">
+        <a th:href="@{/rounds/{id}(id=${round.id})}" th:text="${round.createdAt}"></a>
+        <code th:text="${round.id.substring(0,8)}"></code>
+      </li></ul>
+    </section>
+    <details><summary>등록한 사진</summary><ol><li th:each="name : ${filenames}" th:text="${name}"></li></ol></details>
+  </div>
+  <aside class="panel dataset-guide" aria-labelledby="analysis-guide-title">
+    <h2 id="analysis-guide-title">사진 분석 안내</h2>
+    <p class="hint">이 데이터셋의 분석을 실행하고 결과를 확인하세요.</p>
+    <ol>
+      <li><strong>등록한 사진 확인</strong><p><b>등록한 사진</b>을 펼쳐 분석할 사진을 확인하세요.</p></li>
+      <li><strong>분석 시작</strong><p><b>분석 시작</b>을 누르면 main, main-1, main-2가 실행됩니다. 사진 40장은 한 회차에 총 120건입니다.</p></li>
+      <li><strong>진행 상태 확인</strong><p>분석 회차의 성공·실패 건수를 확인하세요. 실패한 항목은 <b>다시 시도</b>할 수 있습니다.</p></li>
+      <li><strong>결과 비교 및 검수</strong><p><b>사진별 결과</b>에서 사진명을 눌러 원본과 세 버전 결과를 비교하세요. CSV 정답이 있으면 비교 후 <b>검수 저장</b>을 누르세요.</p></li>
+    </ol>
+    <div class="analysis-tip"><strong>같은 사진을 다시 분석할 때</strong>
+      <p><b>새 회차 분석 시작</b>을 누르면 이전 회차 결과도 목록에서 다시 볼 수 있습니다.</p></div>
+  </aside>
+</main>
+</body>
+</html>

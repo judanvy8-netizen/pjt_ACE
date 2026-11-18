@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('분석 회차')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main th:data-progress="${progress.running ? '/rounds/' + round.id + '/progress' : ''}">
+  <a th:href="@{/datasets/{id}(id=${round.datasetId})}">← 데이터셋 및 회차 목록</a>
+  <h1 th:text="${round.datasetName}"></h1>
+  <p th:text="|분석 회차 ${round.createdAt} · ${round.id.substring(0,8)}|"></p>
+  <p id="round-progress" role="status" th:text="|전체 ${progress.total}건 · 성공 ${progress.success} · 실패 ${progress.failed} · 삭제 ${progress.dismissed}|"></p>
+  <p th:if="${notice}" class="notice" th:text="${notice}"></p>
+  <form th:if="${!progress.running and progress.total > progress.success + progress.failed + progress.dismissed}" method="post"
+        th:action="@{/rounds/{id}/resume(id=${round.id})}"><button>대기 중인 분석 계속</button></form>
+  <form th:if="${!progress.running and progress.failed > 0}" method="post"
+        th:action="@{/rounds/{id}/retry-failed(id=${round.id})}"><button>실패한 분석 모두 다시 시도</button></form>
+  <section>
+    <h2>버전별 평가</h2>
+    <p th:if="${otherCount > 0}" th:text="|정답표 밖 사진 ${otherCount}장|"></p>
+    <div th:each="group : ${scoreGroups}">
+    <h3 th:text="${group.key}"></h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>버전</th><th>정답 일치 / 검수한 사진</th><th>검수 대기</th><th>실패</th><th>처리 대기</th><th>고양이 / 개 MAE</th><th>개수 판정</th><th>품종 전체 / 지원 기준</th></tr></thead>
+      <tbody><tr th:each="score : ${group.value}">
+        <th th:text="${score.variant}"></th><td th:text="${score.truth == 0 ? '미평가' : score.correct + ' / ' + score.truth}"></td>
+        <td th:text="${score.pendingReview}"></td><td th:text="${score.failed}"></td><td th:text="${score.waiting}"></td>
+        <td th:text="${score.catMae == null ? '미평가' : #numbers.formatDecimal(score.catMae,1,3) + ' / ' + #numbers.formatDecimal(score.dogMae,1,3)}"></td>
+        <td><div th:each="entry : ${score.distribution}" th:text="|${entry.key} ${entry.value}|"></div><div th:if="${score.variant != 'main'}" th:text="|절대 오차 증가 ${score.worsened}장|"></div></td>
+        <td><div th:text="${score.breedTotal == 0 ? '평가 제외' : score.breedCorrect + '/' + score.breedTotal + ' · 미지원 ' + score.unsupported}"></div>
+          <div th:if="${score.breedTotal > 0}" th:text="${score.supportScore()}"></div></td>
+      </tr></tbody>
+    </table></div>
+    </div>
+  </section>
+  <section>
+    <h2>사진별 결과</h2>
+    <p class="hint">마릿수는 고양이 / 개 순서입니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>사진</th><th>main</th><th>main-1</th><th>main-2</th></tr></thead>
+      <tbody><tr th:each="photo : ${photos}">
+        <th><a th:href="@{/rounds/{id}/photos/{input}(id=${round.id},input=${photo.id})}" th:text="${photo.filename}"></a></th>
+        <td th:each="item : ${photo.items}">
+          <span th:text="${item.run.status == 'SUCCEEDED' ? item.run.catCount + ' / ' + item.run.dogCount + '마리'
+             : (item.run.status == 'DISMISSED' ? '삭제됨' : (item.run.status == 'FAILED' ? '실패' : '대기'))}"></span>
+          <p th:if="${item.run.status != 'DISMISSED' and item.run.error != null}" th:text="${item.run.error}" class="hint"></p>
+          <form th:if="${item.run.status == 'FAILED' and !progress.running}" method="post"
+                th:action="@{/rounds/{id}/retry/{runId}(id=${round.id},runId=${item.run.runId})}"><button>다시 시도</button></form>
+        </td>
+      </tr></tbody>
+    </table></div>
+  </section>
+</main>
+<script th:src="@{/round-progress.js}" defer></script>
+</body>
+</html>

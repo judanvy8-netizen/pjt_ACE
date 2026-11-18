@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('프로젝트 소개')}"></head>
+<body class="home-page">
+<header th:replace="~{layout :: header}"></header>
+<main>
+  <p class="hint" th:text="${standardBaseline ? '튜닝 사진 40장 · 표준 입력 기준' : '튜닝 사진 40장 · 보관 제출본 기준 (표준 입력 기준선 미확정)'}"></p>
+  <section class="hero">
+    <div>
+      <p class="hero-label">AI CREATE EVERYTHING</p>
+      <h1>ACE</h1>
+      <p class="hero-slogan">ALWAYS CHALLENGE TOGETHER</p>
+      <p>반려동물 사진에서 개와 고양이를 찾고, 품종 후보를 분류합니다.</p>
+      <div class="actions"><a class="button-link" th:href="@{/analyze}">사진 분석 시작</a>
+        <a class="button-link secondary" th:href="@{/versions}">버전 비교 보기</a></div>
+    </div>
+    <figure class="intro-video">
+      <video controls playsinline preload="metadata" th:poster="@{/intro/ace-poster.jpg}" aria-label="ACE 프로젝트 인트로">
+        <source th:src="@{/intro/ace-intro.mp4}" type="video/mp4">
+        <a th:href="@{/intro/ace-intro.mp4}">ACE 소개 영상 열기</a>
+      </video>
+    </figure>
+  </section>
+  <section>
+    <h2>버전별 개선 과정</h2>
+    <p>같은 기준 사진에서 개와 고양이 마릿수가 모두 맞은 결과입니다.</p>
+    <div class="version-grid">
+      <article class="panel version-card" th:each="item : ${summaries}">
+        <code th:text="${item.version.id}"></code><h3 th:text="${item.version.label}"></h3>
+        <p class="score" th:text="|${item.correct}/${item.total}장|"></p>
+        <p th:text="${item.version.description}"></p>
+      </article>
+    </div>
+  </section>
+  <section class="demo-section">
+    <figure><img th:src="@{/versions/images/main-2/img_029.jpg}" alt="두 고양이의 검출 결과" loading="lazy"></figure>
+    <div><h2>결과 사진으로 보는 변화</h2>
+      <p>같은 사진에서 고양이 세 마리로 집계했던 결과가 두 마리로 바로잡힌 사례입니다.</p>
+      <a th:href="@{/versions/photos/img_029.jpg}">T29 원본과 세 버전 비교</a></div>
+  </section>
+  <section>
+    <h2>팀원 소개</h2>
+    <dl class="team">
+      <div><dt>김시우</dt><dd>조장</dd></div>
+      <div><dt>구자성</dt><dd>입력 데이터 담당</dd></div>
+      <div><dt>이대건</dt><dd>AI 검출 실행 담당</dd></div>
+      <div><dt>양영석</dt><dd>AI 검출 실행 담당</dd></div>
+      <div><dt>이승규</dt><dd>시각화 및 결과 저장</dd></div>
+      <div><dt>이연호</dt><dd>검증 및 오류 분석 담당</dd></div>
+      <div><dt>배준우</dt><dd>문서·시연·발표 담당</dd></div>
+    </dl>
+  </section>
+</main>
+</body>
+</html>
