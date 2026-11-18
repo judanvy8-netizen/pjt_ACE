@@ -24,8 +24,6 @@ public class BenchmarkController {
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("summaries", benchmark.summaries());
-        model.addAttribute("currentRuns", benchmark.currentRuns());
-        model.addAttribute("standardBaseline", benchmark.standardBaseline());
         return "home";
     }
 
@@ -33,7 +31,6 @@ public class BenchmarkController {
     public String versions(Model model) {
         model.addAttribute("summaries", benchmark.summaries());
         model.addAttribute("currentRuns", benchmark.currentRuns());
-        model.addAttribute("standardBaseline", benchmark.standardBaseline());
         model.addAttribute("photos", benchmark.truth().values());
         return "versions";
     }
@@ -61,13 +58,7 @@ public class BenchmarkController {
     @GetMapping("/performance")
     public String performance(Model model) {
         model.addAttribute("performance", benchmark.performance());
-        model.addAttribute("standardBaseline", benchmark.standardBaseline());
         return "performance";
     }
 
-    @GetMapping("/benchmark")
-    public String verification(Model model) {
-        model.addAttribute("tables", java.util.List.of(benchmark.verification(false), benchmark.verification(true)));
-        return "benchmark";
-    }
 }

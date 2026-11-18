@@ -1,10 +1,9 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{layout :: head('프로젝트 소개')}"></head>
 <body class="home-page">
 <header th:replace="~{layout :: header}"></header>
 <main>
-  <p class="hint" th:text="${standardBaseline ? '튜닝 사진 40장 · 표준 입력 기준' : '튜닝 사진 40장 · 보관 제출본 기준 (표준 입력 기준선 미확정)'}"></p>
   <section class="hero">
     <div>
       <p class="hero-label">AI CREATE EVERYTHING</p>
@@ -23,18 +22,15 @@
   </section>
   <section>
     <h2>버전별 개선 과정</h2>
-    <p>교체된 현재 사진 40장을 같은 조건으로 다시 실행한 마릿수 일치 결과입니다. 다른 동물을 개·고양이로 잡으면 오탐입니다.</p>
+    <p>사진 40장의 개·고양이 마릿수 일치 결과입니다. 개·고양이가 없는 사진도 0 / 0으로 맞히면 정답에 포함합니다.</p>
     <div class="version-grid">
-      <article class="panel version-card" th:each="item : ${summaries}" th:with="current=${currentRuns.get(item.version.id)}">
+      <article class="panel version-card" th:each="item : ${summaries}">
         <code th:text="${item.version.id}"></code><h3 th:text="${item.version.label}"></h3>
-        <p class="score" th:text="${current != null ? current.correct + '/' + current.total + '장' : (item.missing == item.total ? '미측정' : item.correct + '/' + item.total + '장')}"></p>
-        <p class="hint" th:if="${current != null}">현재 사진 40장 로컬 실행</p>
-        <p class="hint" th:if="${current != null and item.missing != item.total}" th:text="|보관 제출본 ${item.correct}/${item.total}장|"></p>
+        <p class="score" th:text="${item.missing == item.total ? '미측정' : item.correct + '/' + item.total + '장'}"></p>
         <p th:text="${item.version.description}"></p>
       </article>
     </div>
   </section>
-  <p class="hint" th:if="${currentRuns.containsKey('main-3')}" th:with="current=${currentRuns.get('main-3')}" th:text="|현재 사진의 비대상 동물: 0/0 정답 ${current.nonTargetCorrect}장 포함 · 오탐 ${current.nonTargetFalsePositive}장 제외 · 사진별 판정은 버전 비교에서 확인|"></p>
   <section class="demo-section">
     <figure><img th:src="@{/versions/images/main-2/img_029.jpg}" alt="두 고양이의 검출 결과" loading="lazy"></figure>
     <div><h2>결과 사진으로 보는 변화</h2>

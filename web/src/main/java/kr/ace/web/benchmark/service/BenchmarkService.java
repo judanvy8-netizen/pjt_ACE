@@ -32,8 +32,6 @@ public class BenchmarkService {
         this.rules = rules;
     }
 
-    public boolean standardBaseline() { return files.standardBaseline(); }
-
     public Map<String, Truth> truth() { return truth("data/ground_truth.csv"); }
 
     public Map<String, Truth> referenceTruth() {
@@ -102,17 +100,12 @@ public class BenchmarkService {
         }).toList();
     }
 
-    /** Current 40-photo CLI runs are shown separately from the archived submission baseline. */
+    /** Validate that each displayed run covers the current 40-photo truth set exactly once. */
     public Map<String, CurrentRun> currentRuns() {
         var expected = truth();
-        var sources = new LinkedHashMap<String, String>();
-        sources.put("main", "outputs/main-current/pet_counts.csv");
-        sources.put("main-1", "outputs/main-1-current/pet_counts.csv");
-        sources.put("main-2", "outputs/main-2-current/pet_counts.csv");
-        sources.put("main-3", "outputs/main-3/pet_counts.csv");
         var result = new LinkedHashMap<String, CurrentRun>();
-        for (var source : sources.entrySet()) {
-            var csv = files.csv(source.getValue());
+        for (var version : VERSIONS) {
+            var csv = files.resultCsv(version.id(), "pet_counts.csv");
             if (csv.invalidRows() != 0 || !csv.headers().containsAll(List.of("filename", "cat", "dog"))) continue;
             var predicted = new LinkedHashMap<String, Counts>();
             boolean invalid = false;
@@ -139,7 +132,7 @@ public class BenchmarkService {
                 photos.add(new CurrentPhoto(truth.filename(), truth.counts(), actual,
                         matched, nonTarget, falsePositive));
             }
-            result.put(source.getKey(), new CurrentRun(source.getKey(), correct, photos.size(),
+            result.put(version.id(), new CurrentRun(version.id(), correct, photos.size(),
                     nonTargetCorrect, nonTargetFalsePositive, photos));
         }
         return result;
@@ -221,10 +214,6 @@ public class BenchmarkService {
             return Optional.empty();
         }
         return files.image(version, name);
-    }
-
-    public CsvTable verification(boolean classification) {
-        return files.csv(classification ? "test_cases_classification.csv" : "test_cases.csv");
     }
 
     private record Classification(List<Map<String, String>> rows, boolean warning) {}

@@ -13,21 +13,13 @@ import org.springframework.stereotype.Repository;
 public class BenchmarkRepository {
     private static final Logger LOG = LoggerFactory.getLogger(BenchmarkRepository.class);
     private final Path root;
-    private final Path baseline;
 
-    public BenchmarkRepository(@Value("${ace.project-root}") String root,
-            @Value("${ace.baseline-dir}") String baseline) {
+    public BenchmarkRepository(@Value("${ace.project-root}") String root) {
         this.root = Path.of(root).toAbsolutePath().normalize();
-        this.baseline = this.root.resolve(baseline).normalize();
     }
 
     private Path versionDir(String version) {
-        return Files.isRegularFile(baseline.resolve("STANDARD_VERIFIED"))
-                ? baseline.resolve(version) : baseline.resolve("legacy-original-res").resolve(version);
-    }
-
-    public boolean standardBaseline() {
-        return Files.isRegularFile(baseline.resolve("STANDARD_VERIFIED"));
+        return root.resolve("outputs").resolve("main-3".equals(version) ? version : version + "-current");
     }
 
     public CsvTable resultCsv(String version, String name) {

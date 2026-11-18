@@ -5,8 +5,7 @@
 <header th:replace="~{layout :: header}"></header>
 <main class="wide-main">
   <h1>성능 검증</h1>
-  <p><span th:text="${standardBaseline ? '표준 입력 기준선' : '보관 제출본'}"></span>
-     <span th:text="| · 기준 사진 ${performance.photos.size()}장 · 고양이와 개 마릿수가 모두 맞으면 일치|"></span></p>
+  <p th:text="|사진 ${performance.photos.size()}장 · 고양이와 개 마릿수가 모두 맞으면 일치|"></p>
   <p th:if="${performance.photos.isEmpty()}" class="notice">기준 정답 자료를 읽을 수 없습니다.</p>
   <div th:unless="${performance.photos.isEmpty()}">
     <div class="metric-grid version-metrics">
@@ -51,7 +50,6 @@
       </section>
     </div>
   </div>
-  <a th:href="@{/benchmark}">오답·품종 검증표</a>
 </main>
 </body>
 </html>

@@ -4,7 +4,6 @@
 <body>
 <header th:replace="~{layout :: header}"></header>
 <main>
-  <p class="hint" th:text="${standardBaseline ? '튜닝 사진 40장 · 표준 입력 기준' : '튜닝 사진 40장 · 보관 제출본 기준 (표준 입력 기준선 미확정)'}"></p>
   <h1>버전 비교</h1>
   <p><a th:href="@{/performance}">성능 검증 그래프와 기준 사진 지도</a></p>
   <p><strong>기준 사진 40장</strong> · <a th:href="@{/versions/datasets}">웹에서 분석한 데이터셋 선택</a></p>
@@ -32,38 +31,22 @@
         <div th:if="${item.unsupported > 0}" th:text="|미지원 ${item.unsupported}|"></div></td>
     </tr></tbody>
   </table></div>
-  <section id="current-benchmark" th:if="${!currentRuns.isEmpty()}">
-    <h2>현재 사진 40장 실행 결과</h2>
-    <p>교체된 현재 <code>data/images</code> 사진 40장을 네 모델로 다시 실행한 결과입니다. 위의 보관 제출본 기준표와 구분해 표시합니다. 개·고양이가 아닌 사진은 0/0이면 정답 사진 수에 포함하고, 개·고양이로 검출하면 오탐으로 제외합니다.</p>
-    <div class="metric-grid">
-      <div class="panel" th:each="run : ${currentRuns.values()}">
-        <h3 th:text="${run.version}"></h3>
-        <p class="score" th:text="|${run.correct}/${run.total}장|"></p>
-        <p th:text="|비대상 사진 0/0 정답 ${run.nonTargetCorrect}장 · 오탐 ${run.nonTargetFalsePositive}장|"></p>
-      </div>
-    </div>
-    <div class="table-wrap" th:if="${currentRuns.containsKey('main-3')}"><table>
-      <thead><tr><th>사진</th><th>개·고양이 정답</th><th>main-3 예측</th><th>판정</th></tr></thead>
-      <tbody><tr th:each="photo : ${currentRuns.get('main-3').photos}">
-        <td th:text="${photo.filename}"></td>
-        <td th:text="${photo.expected.display()}"></td>
-        <td th:text="${photo.actual.display()}"></td>
-        <td th:text="${photo.falsePositive ? '비대상 동물 오탐' : (photo.matched ? (photo.nonTarget ? '비대상 동물 정확히 제외' : '마릿수 일치') : '마릿수 불일치')}"></td>
-      </tr></tbody>
-    </table></div>
-  </section>
-  <section>
+  <section id="current-benchmark">
     <h2>사진별 비교</h2>
+    <p>개·고양이가 아닌 사진은 0 / 0이면 정답으로 계산하고, 개·고양이로 검출하면 오탐으로 계산합니다.</p>
     <div class="actions">
       <a th:href="@{/versions/photos/img_023.jpg}">T23</a><a th:href="@{/versions/photos/img_028.jpg}">T28</a>
-      <a th:href="@{/versions/photos/img_029.jpg}">T29</a><a th:href="@{/benchmark}">오답·품종 검증표</a>
+      <a th:href="@{/versions/photos/img_029.jpg}">T29</a>
     </div>
     <p th:if="${photos.isEmpty()}">기준 정답 자료를 읽을 수 없습니다. 프로젝트 경로를 확인해 주세요.</p>
     <div class="table-wrap" th:unless="${photos.isEmpty()}"><table>
-      <thead><tr><th>사진</th><th>정답 고양이 / 개</th><th>정답 품종·위치</th></tr></thead>
-      <tbody><tr th:each="photo : ${photos}">
+      <thead><tr><th>사진</th><th>정답 고양이 / 개</th><th>main</th><th>main-1</th><th>main-2</th><th>main-3</th><th>정답 품종·위치</th></tr></thead>
+      <tbody><tr th:each="photo, stat : ${photos}">
         <td><a th:href="@{/versions/photos/{name}(name=${photo.filename})}" th:text="${photo.filename}"></a></td>
-        <td th:text="${photo.counts.display()}"></td><td th:text="${photo.breeds}"></td>
+        <td th:text="${photo.counts.display()}"></td>
+        <td th:each="run : ${currentRuns.values()}" th:with="result=${run.photos[stat.index]}"
+            th:text="${result.actual.display() + ' · ' + (result.falsePositive ? '오탐' : (result.matched ? '일치' : '불일치'))}"></td>
+        <td th:text="${photo.breeds}"></td>
       </tr></tbody>
     </table></div>
   </section>
