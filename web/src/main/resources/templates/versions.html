@@ -20,8 +20,8 @@
         <div th:if="${item.version.id == 'main-2'}">개 <code>yolo11n-cls.pt</code><br>고양이 <code>cat_oxford_mobilenetv3.pt</code></div>
         <div th:if="${item.version.id == 'main-3'}">종·견종 <code>ViT-B/16</code><br>묘종 <code>Oxford MobileNetV3</code></div>
       </td>
-      <td th:text="|${item.correct} / ${item.total}장|"></td>
-      <td th:text="${item.version.id == 'main' ? '첫 버전' : '개선 ' + item.improved + '장 · 새 오답 ' + item.regressed + '장'}"></td>
+      <td th:text="${item.missing == item.total ? '미측정' : item.correct + ' / ' + item.total + '장'}"></td>
+      <td th:text="${item.version.id == 'main' ? '첫 버전' : (item.missing == item.total ? '비교 전' : '개선 ' + item.improved + '장 · 새 오답 ' + item.regressed + '장')}"></td>
       <td th:text="|${item.missing} · ${item.issues}|"></td>
       <td th:text="${item.catMae == null ? '미평가' : #numbers.formatDecimal(item.catMae,1,3) + ' / ' + #numbers.formatDecimal(item.dogMae,1,3)}"></td>
       <td><div th:each="entry : ${item.countDistribution}" th:text="|${entry.key} ${entry.value}|"></div>

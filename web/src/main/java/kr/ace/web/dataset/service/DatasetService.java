@@ -256,14 +256,14 @@ public class DatasetService {
             var distribution = evaluated.stream().collect(Collectors.groupingBy(
                     kr.ace.web.truth.entity.Evaluation::countLabel, java.util.LinkedHashMap::new, Collectors.counting()));
             int position = VARIANTS.indexOf(variant);
-            long worsened = position == 0 ? 0 : photos.stream().filter(photo -> {
+            long worsened = position == 0 || items.isEmpty() ? 0 : photos.stream().filter(photo -> {
                 var previous = photo.items().get(position - 1).evaluation();
                 var current = photo.items().get(position).evaluation();
                 return previous != null && current != null
                         && current.catError() + current.dogError() > previous.catError() + previous.dogError();
             }).count();
             return new Score(variant, items.stream().filter(i -> i.evaluation() != null && i.evaluation().matched()).count(),
-                    truthCount, items.stream().filter(i -> i.evaluation() == null && "SUCCEEDED".equals(i.run().status())).count(),
+                    items.isEmpty() ? 0 : truthCount, items.stream().filter(i -> i.evaluation() == null && "SUCCEEDED".equals(i.run().status())).count(),
                     items.stream().filter(i -> "FAILED".equals(i.run().status())).count(),
                     items.stream().filter(i -> "PENDING".equals(i.run().status())).count(),
                     evaluated.isEmpty() ? null : evaluated.stream().mapToInt(e -> e.catError()).average().orElseThrow(),

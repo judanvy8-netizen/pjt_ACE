@@ -12,7 +12,7 @@
     <div class="metric-grid version-metrics">
       <article class="panel" th:each="rate : ${performance.versions}">
         <h2 th:text="${rate.version}"></h2>
-        <strong th:text="|${rate.correct} / ${rate.total}장 · ${#numbers.formatDecimal(rate.percent(), 1, 1)}%|"></strong>
+        <strong th:text="${rate.missing == rate.total ? '미측정' : rate.correct + ' / ' + rate.total + '장 · ' + #numbers.formatDecimal(rate.percent(), 1, 1) + '%'}"></strong>
         <p class="hint" th:if="${rate.missing > 0}" th:text="|누락·확인 필요 ${rate.missing}장|"></p>
       </article>
     </div>

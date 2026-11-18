@@ -60,7 +60,7 @@ public class BreedRules {
         var result = new HashMap<String, Set<String>>();
         result.put("cat", cats.map(this::normalize).collect(Collectors.toUnmodifiableSet()));
         var dogs = dogLabels.getOrDefault(variant, Set.of());
-        if ("main-3".equals(variant) || dogs.size() == 118 && dogs.stream().allMatch(translations::containsKey)) {
+        if (dogs.size() == 118 && dogs.stream().allMatch(translations::containsKey)) {
             result.put("dog", dogs.stream().map(this::normalize).collect(Collectors.toUnmodifiableSet()));
         }
         return result;

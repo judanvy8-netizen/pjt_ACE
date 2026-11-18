@@ -102,7 +102,7 @@
     <p th:unless="${reviewed or reviewable}">연결된 CSV 정답과 성공한 분석 결과가 있어야 검수할 수 있습니다.</p>
     <form th:if="${reviewable and !reviewed}" method="post"
           th:action="@{/rounds/{id}/photos/{inputId}/review(id=${round.id},inputId=${photo.id})}">
-      <p>네 모델 결과와 위의 CSV 정답을 확인한 뒤 검수를 저장하세요.</p>
+      <p>이 회차의 모델 결과와 위의 CSV 정답을 확인한 뒤 검수를 저장하세요.</p>
       <button type="submit">검수 저장</button>
     </form>
   </section>

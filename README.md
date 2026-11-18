@@ -11,6 +11,21 @@ Set-Location ..
 ~~~
 
 
+## 현재 PC에서 실행하기 (C:\KSW\pjt_ACE_web7)
+
+IntelliJ 아래 PowerShell 터미널을 열어 프로젝트 루트에서 순서대로 실행합니다.
+
+~~~powershell
+Set-Location 'C:\KSW\pjt_ACE_web7'
+.\.venv\Scripts\python.exe scripts\download_vit.py
+powershell -ExecutionPolicy Bypass -File .\scripts\Start.ps1
+~~~
+
+시작 스크립트가 MySQL `ace_app` 비밀번호를 요청하면 직접 입력합니다. 브라우저에서
+`http://127.0.0.1:8080`을 열고 **사진 분석**에서 데이터셋을 선택해 새 회차를 시작합니다.
+기존 회차는 세 모델 결과로 남고, 새 회차부터 네 모델이 실행됩니다. 40장은 최대 160건입니다.
+중단할 때는 프로젝트 루트에서 `powershell -ExecutionPolicy Bypass -File .\scripts\Stop.ps1`을 실행합니다.
+
 ## 1. 준비할 프로그램
 
 | 구분 | 버전 또는 용도 |
@@ -407,4 +422,4 @@ AI 담당자가 제공한 main-3 실행 예시를 설계 참고로 사용했습�
 .\.venv\Scripts\python.exe source\main-3.py --input data\images --output outputs\main-3
 ~~~
 
-가중치는 Torchvision 공식 배포본으로 내려받고 SHA-256을 확인합니다. 용량 때문에 GitHub에는 넣지 않습니다. 새 웹 회차는 40장 기준 최대 160건이며, 기존 회차의 세 버전 결과는 그대로 남습니다. 기존 기준선의 main-3 값은 미측정으로 표시됩니다.
+가중치는 Torchvision 공식 배포본으로 내려받고 SHA-256을 확인합니다. 용량 때문에 GitHub에는 넣지 않습니다. 새 웹 회차는 40장 기준 최대 160건이며, 기존 회차의 세 버전 결과는 그대로 남습니다. 기존 기준선의 main-3 값은 미측정으로 표시됩니다. 견종 이름의 한글 대응표가 일부만 완성되어 있어 웹 검증표의 견종 지원 범위는 '지원 정보 확인 필요'로 표시될 수 있습니다.

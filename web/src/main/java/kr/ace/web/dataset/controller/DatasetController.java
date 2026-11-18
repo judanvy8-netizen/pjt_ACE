@@ -81,6 +81,8 @@ public class DatasetController {
         model.addAttribute("round", service.round(id));
         var photos = service.photos(id, null);
         model.addAttribute("photos", photos);
+        model.addAttribute("roundVariants", photos.isEmpty() ? DatasetService.VARIANTS :
+                photos.get(0).items().stream().map(item -> item.variant()).toList());
         var tuning = benchmark.truth().keySet();
         var reference = benchmark.referenceTruth().keySet();
         var groups = new java.util.LinkedHashMap<String, java.util.List<kr.ace.web.dataset.model.RoundDO.Score>>();
