@@ -39,17 +39,24 @@
   </section>
   <section>
     <h2>팀원 소개</h2>
-    <p class="hint">이름을 누르면 담당한 작업 범위를 볼 수 있습니다.</p>
+    <p class="hint">이름을 누르면 해당 팀원 소개를 크게 볼 수 있습니다.</p>
     <div class="team">
-      <details class="team-card"><summary><strong>김시우</strong><span>조장</span></summary><p>프로젝트 주제와 일정 조율, 역할 분담, 팀 진행 상황 확인을 담당합니다.</p></details>
-      <details class="team-card"><summary><strong>구자성</strong><span>입력 데이터</span></summary><p>분석에 쓸 사진과 품종·출처 정보를 확인하는 역할입니다.</p></details>
-      <details class="team-card"><summary><strong>이대건</strong><span>AI 검출 실행</span></summary><p>AI 검출 실행과 탐지 결과 점검을 담당합니다. 양영석 팀원과 함께 검출 오류 사례를 살피는 역할로 기록되어 있습니다.</p></details>
-      <details class="team-card"><summary><strong>양영석</strong><span>AI 검출 실행</span></summary><p>AI 검출 실행과 탐지 결과 점검을 담당합니다. 이대건 팀원과 함께 검출 오류 사례를 살피는 역할로 기록되어 있습니다.</p></details>
-      <details class="team-card"><summary><strong>이승규</strong><span>시각화·결과 저장</span></summary><p>분석 결과를 사진과 화면에서 확인할 수 있도록 시각화하고 결과를 저장하는 역할입니다.</p></details>
-      <details class="team-card"><summary><strong>이연호</strong><span>검증·오류 분석</span></summary><p>검출 수와 품종 결과를 정답과 비교하고, 오답 사례와 원인을 정리하는 역할입니다.</p></details>
-      <details class="team-card"><summary><strong>배준우</strong><span>문서·시연·발표</span></summary><p>프로젝트 내용을 문서로 정리하고 시연과 발표 자료를 준비하는 역할입니다.</p></details>
+      <details class="team-card" name="team-member"><summary><strong>김시우</strong><span>조장</span></summary><p>프로젝트 주제와 일정 조율, 역할 분담, 팀 진행 상황 확인을 담당합니다.</p></details>
+      <details class="team-card" name="team-member"><summary><strong>구자성</strong><span>입력 데이터</span></summary><p>분석에 쓸 사진과 품종·출처 정보를 확인하는 역할입니다.</p></details>
+      <details class="team-card" name="team-member"><summary><strong>이대건</strong><span>AI 검출 실행</span></summary><p>AI 검출 실행과 탐지 결과 점검을 담당합니다. 양영석 팀원과 함께 검출 오류 사례를 살피는 역할로 기록되어 있습니다.</p></details>
+      <details class="team-card" name="team-member"><summary><strong>양영석</strong><span>AI 검출 실행</span></summary><p>AI 검출 실행과 탐지 결과 점검을 담당합니다. 이대건 팀원과 함께 검출 오류 사례를 살피는 역할로 기록되어 있습니다.</p></details>
+      <details class="team-card" name="team-member"><summary><strong>이승규</strong><span>시각화·결과 저장</span></summary><p>분석 결과를 사진과 화면에서 확인할 수 있도록 시각화하고 결과를 저장하는 역할입니다.</p></details>
+      <details class="team-card" name="team-member"><summary><strong>이연호</strong><span>검증·오류 분석</span></summary><p>검출 수와 품종 결과를 정답과 비교하고, 오답 사례와 원인을 정리하는 역할입니다.</p></details>
+      <details class="team-card" name="team-member"><summary><strong>배준우</strong><span>문서·시연·발표</span></summary><p>프로젝트 내용을 문서로 정리하고 시연과 발표 자료를 준비하는 역할입니다.</p></details>
     </div>
+    <dialog id="team-detail" class="team-dialog" aria-labelledby="team-detail-name">
+      <form method="dialog"><button type="submit" class="secondary-button" aria-label="팀원 소개 닫기">닫기</button></form>
+      <h2 id="team-detail-name"></h2>
+      <p class="team-dialog-role" id="team-detail-role"></p>
+      <p class="team-dialog-description" id="team-detail-description"></p>
+    </dialog>
   </section>
 </main>
+<script th:src="@{/team-detail.js}" defer></script>
 </body>
 </html>

@@ -252,6 +252,19 @@ html[data-theme="dark"] .comparison-grid a[data-preview] { background:#122238; }
 .team-card summary strong, .team-card summary span { display: block; }
 .team-card summary span { margin-top: .25rem; color: #52647a; }
 .team-card p { margin: .8rem 0 0; line-height: 1.55; }
+.team-card summary { display: grid; grid-template-columns: 1fr auto; align-content: center; min-height: 3.5rem; list-style: none; }
+.team-card summary::-webkit-details-marker { display: none; }
+.team-card summary strong, .team-card summary span { grid-column: 1; }
+.team-card summary::after { content: "↗"; grid-column: 2; grid-row: 1 / span 2; align-self: center; color: #175898; font-size: 1.2rem; }
+.team-card summary:focus-visible { outline: 3px solid #175898; outline-offset: 4px; border-radius: .25rem; }
+.team-card[open] { grid-column: 1 / -1; padding: 1.4rem; }
+.team-card[open] p { font-size: 1.1rem; }
+.team-dialog { width: min(38rem, calc(100vw - 2rem)); max-height: calc(100vh - 2rem); padding: clamp(1.5rem, 4vw, 2.5rem); border: 1px solid #dbe5ef; border-radius: 1rem; background: white; color: #17263a; box-shadow: 0 1.2rem 3rem #091c3470; }
+.team-dialog::backdrop { background: rgb(10 20 33 / 76%); }
+.team-dialog form { text-align: right; }
+.team-dialog h2 { margin: .5rem 0 0; font-size: clamp(2rem, 5vw, 3rem); }
+.team-dialog-role { margin: .3rem 0 1.5rem; color: #175898; font-size: 1.2rem; font-weight: 700; }
+.team-dialog-description { margin: 0; line-height: 1.7; font-size: 1.1rem; }
 .review-navigation { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem; margin: .8rem 0 1rem; color: #52647a; }
 .review-navigation a { display: inline-block; padding: .45rem .7rem; border-radius: .45rem; background: #e4f2ff; font-weight: 700; text-decoration: none; }
 .history-search { display:flex; flex-wrap:wrap; align-items:end; gap:.65rem; margin:1rem 0; }
@@ -264,6 +277,9 @@ html[data-theme="dark"] .comparison-grid a[data-preview] { background:#122238; }
 .history-breed-item { white-space: nowrap; }
 .history-breed-item small { color: #52647a; margin-left: .25rem; }
 html[data-theme="dark"] .team-card { background:#1b2b40; border-color:#3c5169; color:#e4edf9; }
+html[data-theme="dark"] .team-dialog { background:#1b2b40; border-color:#3c5169; color:#e4edf9; }
+html[data-theme="dark"] .team-dialog-role,
+html[data-theme="dark"] .team-card summary::after { color:#9bcfff; }
 html[data-theme="dark"] .team-card summary span,
 html[data-theme="dark"] .review-navigation,
 html[data-theme="dark"] .history-breed-item small { color:#b8cbe1; }

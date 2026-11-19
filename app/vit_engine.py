@@ -48,7 +48,9 @@ def deduplicate_same_species(candidates):
                 break
             if min(a, b) and intersection / min(a, b) >= 0.95 and \
                     min(a, b) / max(a, b) >= 0.45:
-                if a < b:
+                # The tighter crop can lose the animal's defining features.
+                # Keep the stronger detection when two boxes describe one pet.
+                if item["det_confidence"] > previous["det_confidence"]:
                     kept[index] = item
                 break
         else:
