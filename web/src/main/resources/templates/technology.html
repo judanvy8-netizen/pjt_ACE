@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('기술·판정 규칙')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main class="wide-main">
+  <h1>기술·판정 규칙</h1>
+  <p>사진 등록부터 AI 추론과 CSV 정답 비교까지 적용하는 기준입니다.</p>
+  <section class="panel">
+    <h2>사진이 처리되는 순서</h2>
+    <ol class="technology-steps">
+      <li><strong>사진 등록</strong><span>Spring Boot · 데이터셋 저장</span></li>
+      <li><strong>검출용 이미지 준비</strong><span>긴 변 최대 640px</span></li>
+      <li><strong>검출·품종 후보 계산</strong><span>Python AI · 버전별 추론</span></li>
+      <li><strong>정답 비교·검수 저장</strong><span>Spring Boot · MySQL</span></li>
+    </ol>
+  </section>
+  <div class="dashboard-pair">
+    <section class="panel">
+      <h2>버전별 모델과 판정</h2>
+      <dl class="technology-list">
+        <dt><code>main</code> · 개·고양이 검출과 마릿수</dt>
+        <dd>YOLO11n으로 개와 고양이의 위치와 마릿수를 계산합니다.</dd>
+        <dt><code>main-1</code> · 검출 결과에 품종 후보 추가</dt>
+        <dd>검출 영역을 원본에서 잘라 ImageNet 분류 모델에 전달합니다.</dd>
+        <dt><code>main-2</code> · 고양이 전용 분류와 검출 보정</dt>
+        <dd>개는 ImageNet 분류, 고양이는 Oxford 12종 분류 모델을 사용합니다. 중복 검출을 줄이고 넓게 잡힌 고양이 박스를 재검출합니다.</dd>
+        <dt><code>main-3</code> · ViT-B/16 기반 분류</dt>
+        <dd>YOLO가 찾은 개체를 ViT-B/16으로 분류해 견종 후보와 종류를 확인합니다. 강한 반대 증거가 있을 때만 종을 보정하며 묘종은 Oxford 12종 모델을 사용합니다.</dd>
+      </dl>
+    </section>
+    <section class="panel">
+      <h2>정답 비교 기준과 한계</h2>
+      <dl class="technology-list">
+        <dt>마릿수</dt><dd>고양이와 개를 따로 비교합니다. 두 종류 모두 맞으면 일치입니다.</dd>
+        <dt>품종</dt><dd>같은 종류 안에서 품종별 개체 수를 비교합니다. 영문 번역과 등록된 별칭 규칙을 적용합니다.</dd>
+        <dt>지원 범위</dt><dd>모델 미지원 품종과 지원 정보를 확인해야 하는 품종을 구분해 표시합니다.</dd>
+      </dl>
+      <div class="analysis-tip"><strong>Python AI API</strong>
+        <p>상태 <code>GET /api/health</code> · 추론 <code>POST /api/infer</code></p>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

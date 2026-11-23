@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('소스 구조')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main class="wide-main">
+  <h1>소스 구조</h1>
+  <p>프로젝트의 주요 패키지와 파일 역할을 확인합니다.</p>
+  <nav class="section-tabs" aria-label="소스 언어">
+    <a th:href="@{/source-structure}" th:attr="aria-current=${language == 'java' ? 'page' : null}">Java 소스 구조</a>
+    <a th:href="@{/source-structure(language='python')}" th:attr="aria-current=${language == 'python' ? 'page' : null}">Python 소스 구조</a>
+  </nav>
+  <div class="source-layout">
+    <aside class="panel">
+      <h2 th:text="${language == 'java' ? 'Java 도메인' : 'Python 폴더'}"></h2>
+      <nav class="source-links" aria-label="소스 그룹">
+        <a th:each="item : ${groups}" th:href="@{/source-structure(language=${language},group=${item.id})}"
+           th:attr="aria-current=${item.id == selected.id ? 'page' : null}">
+          <strong th:text="${item.id}"></strong><span class="hint" th:text="${item.purpose}"></span>
+        </a>
+      </nav>
+    </aside>
+    <section class="panel">
+      <h2 th:text="${selected.id}"></h2>
+      <p><code th:text="${selected.path}"></code></p>
+      <div class="table-wrap"><table>
+        <thead><tr><th th:text="${language == 'java' ? '패키지·구성' : '구성'}"></th><th>주요 파일</th><th>역할</th></tr></thead>
+        <tbody><tr th:each="entry : ${selected.entries}">
+          <th scope="row" th:text="${entry.category}"></th><td><code th:text="${entry.files}"></code></td><td th:text="${entry.purpose}"></td>
+        </tr></tbody>
+      </table></div>
+      <div class="analysis-tip" th:unless="${selected.views.isBlank()}">
+        <strong>View · Thymeleaf</strong>
+        <p><code>web/src/main/resources/templates/</code></p>
+        <p th:text="${selected.views}"></p>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

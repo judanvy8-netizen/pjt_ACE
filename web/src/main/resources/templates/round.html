@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('분석 회차')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main th:data-progress="${progress.running ? '/rounds/' + round.id + '/progress' : ''}">
+  <a th:href="@{/datasets/{id}(id=${round.datasetId})}">← 데이터셋 및 회차 목록</a>
+  <h1 th:text="${round.datasetName}"></h1>
+  <p th:text="|분석 회차 ${round.createdAt} · ${round.id.substring(0,8)}|"></p>
+  <p id="round-progress" role="status" th:text="|전체 ${progress.total}건 · 성공 ${progress.success} · 실패 ${progress.failed} · 삭제 ${progress.dismissed}|"></p>
+  <p th:text="|등록 사진 ${photos.size()}장 · 분석 성공 ${progress.success}/${progress.total}건|"></p>
+  <p th:if="${notice}" class="notice" th:text="${notice}"></p>
+  <form th:if="${!progress.running and progress.total > progress.success + progress.failed + progress.dismissed}" method="post"
+        th:action="@{/rounds/{id}/resume(id=${round.id})}"><button>대기 중인 분석 계속</button></form>
+  <form th:if="${!progress.running and progress.failed > 0}" method="post"
+        th:action="@{/rounds/{id}/retry-failed(id=${round.id})}"><button>실패한 분석 모두 다시 시도</button></form>
+  <section>
+    <h2>버전별 개선 과정</h2>
+    <p>홈과 같은 기준 사진 40장의 개·고양이 마릿수 일치 결과입니다. 아래 사진별 결과는 이 회차의 분석입니다.</p>
+    <div class="version-grid">
+      <article class="panel version-card" th:each="item : ${summaries}">
+        <code th:text="${item.version.id}"></code><h3 th:text="${item.version.label}"></h3>
+        <p class="score" th:text="${item.missing == item.total ? '미측정' : item.correct + '/' + item.total + '장'}"></p>
+        <p th:text="${item.version.description}"></p>
+      </article>
+    </div>
+  </section>
+  <section>
+    <h2>사진별 결과</h2>
+    <p class="hint">마릿수는 고양이 / 개 순서입니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>사진</th><th th:each="variant : ${roundVariants}" th:text="${variant}"></th></tr></thead>
+      <tbody><tr th:each="photo : ${photos}">
+        <th><a th:href="@{/rounds/{id}/photos/{input}(id=${round.id},input=${photo.id})}" th:text="${photo.filename}"></a></th>
+        <td th:each="item : ${photo.items}">
+          <span th:text="${item.run.status == 'SUCCEEDED' ? item.run.catCount + ' / ' + item.run.dogCount + '마리'
+             : (item.run.status == 'DISMISSED' ? '삭제됨' : (item.run.status == 'FAILED' ? '실패' : '대기'))}"></span>
+          <p th:if="${item.run.status != 'DISMISSED' and item.run.error != null}" th:text="${item.run.error}" class="hint"></p>
+          <form th:if="${item.run.status == 'FAILED' and !progress.running}" method="post"
+                th:action="@{/rounds/{id}/retry/{runId}(id=${round.id},runId=${item.run.runId})}"><button>다시 시도</button></form>
+        </td>
+      </tr></tbody>
+    </table></div>
+  </section>
+</main>
+<script th:src="@{/round-progress.js}" defer></script>
+</body>
+</html>

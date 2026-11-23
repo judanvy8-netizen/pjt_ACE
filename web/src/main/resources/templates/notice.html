@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('처리 안내')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main><h1>처리 안내</h1><p class="notice" th:text="${message}"></p><a th:href="@{/}">사진 분석으로 이동</a></main>
+</body>
+</html>

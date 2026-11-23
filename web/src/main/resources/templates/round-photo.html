@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('회차별 사진 비교')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main class="wide-main" th:with="expected=${reference.truth}">
+  <div class="actions">
+    <a th:href="@{/rounds/{id}(id=${round.id})}">← 분석 회차</a>
+    <a th:href="@{/history}">분석 이력</a>
+  </div>
+  <nav th:replace="~{photo-navigation :: controls(${navigation})}"></nav>
+  <div class="review-navigation">
+    <span th:text="|검수 대기 ${reviewRemaining}장|"></span>
+    <a th:if="${nextUnreviewed}" th:href="@{${nextUnreviewed}}">다음 미검수 사진 →</a>
+    <span th:if="${reviewRemaining == 0}">이 회차의 검수를 모두 마쳤습니다.</span>
+  </div>
+  <div class="photo-top-grid">
+    <div class="photo-heading"><h1 th:text="${photo.filename}"></h1></div>
+    <section class="panel rule-help">
+      <h2>품종 별칭 규칙 안내</h2>
+      <p>품종명 번역 및 등록된 별칭을 같은 표준 품종으로 비교합니다.</p>
+      <button type="button" data-open-rules>규칙 안내 보기</button>
+    </section>
+    <section class="panel rule-search">
+      <h2>품종 별칭 규칙 조회</h2>
+      <form data-alias-search><input name="q" type="search" maxlength="100" placeholder="품종명 또는 별칭" aria-label="품종명 또는 별칭" required><button type="submit">조회</button></form>
+      <div data-alias-results role="status" aria-live="polite"></div>
+    </section>
+    <span class="review-badge" th:classappend="${reviewed} ? 'reviewed' : ''" th:text="${reviewed ? '검수완료' : '미검수'}"></span>
+  </div>
+  <p th:if="${notice}" th:text="${notice}" class="notice" role="status"></p>
+  <div class="photo-truth" th:if="${expected != null}">
+    <p th:text="|정답 고양이 / 개 ${expected.counts.display()}|"></p>
+    <p th:text="${expected.breeds}"></p>
+    <p th:unless="${expected.note.isBlank()}" th:text="|비고 · ${expected.note}|"></p>
+    <p class="hint" th:unless="${reviewed}">CSV 기준 미리보기 · 검수 저장 후 분석 이력에 평가가 반영됩니다.</p>
+  </div>
+  <p th:if="${expected == null}" th:switch="${reference.state}">
+    <span th:case="'different'">기준 원본과 파일 내용이 달라 CSV 정답을 연결할 수 없습니다.</span>
+    <span th:case="'unavailable'">기준 원본을 확인할 수 없습니다.</span>
+    <span th:case="*">등록된 CSV 정답이 없습니다.</span>
+  </p>
+  <p th:if="${truthWarning}" th:text="${truthWarning}" class="notice" role="status"></p>
+  <div class="comparison-grid" th:data-filename="${photo.filename}">
+    <figure>
+      <figcaption>원본</figcaption>
+      <a data-preview="원본" th:href="@{/media/{id}/original(id=${original.runId})}">
+        <img th:src="@{/media/{id}/original(id=${original.runId})}" alt="원본 사진">
+        <span class="zoom-hint" aria-hidden="true">⌕ 확대</span>
+      </a>
+    </figure>
+    <figure th:each="item : ${photo.items}" th:with="verdict=${verdicts.get(item.variant)}, evaluation=${item.evaluation}">
+      <figcaption th:text="${item.variant}"></figcaption>
+      <a th:if="${item.run.status == 'SUCCEEDED'}" th:data-preview="${item.variant}"
+         th:href="@{/media/{id}/result(id=${item.run.runId})}">
+        <img th:src="@{/media/{id}/result(id=${item.run.runId})}" th:alt="|${item.variant} 결과 사진|">
+        <span class="zoom-hint" aria-hidden="true">⌕ 확대</span>
+      </a>
+      <p th:if="${item.run.status == 'SUCCEEDED'}">
+        <span th:text="|고양이 / 개 ${item.run.catCount} / ${item.run.dogCount}|"></span>
+        <span th:if="${verdict != null}"
+              th:text="| · ${verdict.countLabel(expected.counts.cats, expected.counts.dogs)}|"></span>
+        <span th:if="${verdict == null and evaluation != null}" th:text="| · ${evaluation.countLabel()}|"></span>
+      </p>
+      <p th:unless="${item.run.status == 'SUCCEEDED'}"
+         th:text="${item.run.status == 'DISMISSED' ? '삭제됨' : (item.run.status == 'FAILED' ? '분석 실패' : '처리 대기')}"></p>
+      <p th:if="${verdict != null}"
+         th:text="|정답 ${expected.counts.display()} → 예측 ${item.run.catCount} / ${item.run.dogCount} · Δ ${verdict.catDiff}/${verdict.dogDiff}|"></p>
+      <p th:if="${verdict == null and evaluation != null}"
+         th:text="|저장된 정답 ${evaluation.cats} / ${evaluation.dogs} → 예측 ${item.run.catCount} / ${item.run.dogCount} · Δ ${evaluation.catDiff}/${evaluation.dogDiff}|"></p>
+      <p th:if="${item.run.status == 'SUCCEEDED'}"
+         th:text="${item.variant == 'main' ? '품종 · 해당 없음' : (verdict != null ? '품종 · ' + verdict.breedLabel() : (evaluation != null ? '품종 · ' + evaluation.verdict().breedLabel() : '품종 · 정답 없음'))}"></p>
+    </figure>
+  </div>
+  <section class="breed-note-row" th:each="item : ${photo.items}">
+    <div class="breed-note-info">
+    <h2 th:text="|${item.variant} 품종 후보|"></h2>
+    <p th:if="${item.variant == 'main'}">이 버전은 종류별 마릿수를 집계합니다.</p>
+    <div th:unless="${item.variant == 'main'}">
+      <p th:if="${item.pets.isEmpty()}" th:text="${item.run.status == 'SUCCEEDED' ? '검출된 품종 후보가 없습니다.' : '분석 결과가 아직 저장되지 않았습니다.'}"></p>
+      <div class="table-wrap" th:unless="${item.pets.isEmpty()}">
+        <table>
+          <thead><tr><th>박스 번호</th><th>검출 종류</th><th>검출 점수</th><th>품종 후보</th><th>분류 점수</th><th>분류 상태</th></tr></thead>
+          <tbody><tr th:each="pet : ${item.pets}">
+            <td th:text="${pet.number}"></td><td th:text="${pet.species == 'cat' ? '고양이' : '개'}"></td>
+            <td th:text="${#numbers.formatDecimal(pet.detectionScore * 100, 1, 1) + '%'}"></td>
+            <td th:text="${pet.breed}"></td>
+            <td th:text="${pet.breedScore == null ? '–' : #numbers.formatDecimal(pet.breedScore * 100, 1, 1) + '%'}"></td>
+            <td th:text="${pet.classificationStatus == 'yes' ? '검출 종류와 일치' : (pet.classificationStatus == 'no' ? '종류 불확실' : (pet.classificationStatus == 'crop_empty' ? '분류 실패' : '확인 불가'))}"></td>
+          </tr></tbody>
+        </table>
+      </div>
+    </div>
+    <p th:if="${item.run.status != 'DISMISSED'}"><a th:href="@{/history/{id}(id=${item.run.runId})}">이 버전의 분석 상세</a></p>
+    </div>
+    <div class="panel breed-note-field">
+      <label th:for="|note-${item.variant}|" th:text="|비고 (${item.variant})|"></label>
+      <textarea th:id="|note-${item.variant}|" rows="3" maxlength="1000"
+          th:name="${item.variant == 'main' ? 'mainNote' : (item.variant == 'main-1' ? 'main1Note' : (item.variant == 'main-2' ? 'main2Note' : 'main3Note'))}"
+          th:text="${notes.get(item.variant)}" form="photo-notes-form" placeholder="해당 버전의 비교·판정 비고를 입력하세요."></textarea>
+    </div>
+  </section>
+  <div class="review-note-grid">
+  <section class="panel">
+    <h2>사진 검수</h2>
+    <p th:if="${reviewed}">이 사진의 CSV 정답을 검수했습니다. 같은 사진의 모든 성공 결과에 정답이 적용됩니다.</p>
+    <p th:unless="${reviewed or reviewable}">연결된 CSV 정답과 성공한 분석 결과가 있어야 검수할 수 있습니다.</p>
+    <form th:if="${reviewable and !reviewed}" method="post"
+          th:action="@{/rounds/{id}/photos/{inputId}/review(id=${round.id},inputId=${photo.id})}">
+      <p>이 회차의 모델 결과와 위의 CSV 정답을 확인한 뒤 검수를 저장하세요.</p>
+      <button type="submit">검수 저장</button>
+    </form>
+  </section>
+  <section class="panel overall-note">
+    <h2>전체 비고</h2>
+    <form id="photo-notes-form" method="post" th:action="@{/rounds/{id}/photos/{inputId}/notes(id=${round.id}, inputId=${photo.id})}">
+      <label for="overallNote" class="visually-hidden">전체 비고</label>
+      <textarea id="overallNote" name="overallNote" rows="4" maxlength="1000" th:text="${notes.get('overall')}" placeholder="분석 결과 전체에 대한 종합 의견"></textarea>
+      <button type="submit">비고 저장</button>
+    </form>
+  </section>
+  </div>
+  <dialog id="breed-rules-dialog" class="ace-dialog" aria-labelledby="breed-rules-title">
+    <h2 id="breed-rules-title">품종 별칭 규칙 안내</h2>
+    <p>품종 정답과 추론 결과를 비교할 때 다음 순서로 표준화합니다.</p>
+    <ol><li>영문 품종명은 등록된 한국어 번역표를 사용합니다.</li>
+        <li>등록된 별칭은 표준 품종명으로 정규화합니다.</li>
+        <li>대소문자·공백·밑줄 차이를 무시합니다.</li>
+        <li>같은 동물 종류 안에서 정규화된 품종과 개체 수를 비교합니다.</li></ol>
+    <p class="hint">실제 규칙 데이터: data/breed_labels_imagenet_ko.csv, data/breed_aliases.csv · 미등록 이름은 임의로 같은 품종 처리하지 않습니다.</p>
+    <form method="dialog"><button type="submit">닫기</button></form>
+  </dialog>
+  <dialog id="breed-result-dialog" class="ace-dialog" aria-labelledby="breed-result-title">
+    <h2 id="breed-result-title">품종 별칭 규칙 조회 상세</h2>
+    <dl data-alias-detail></dl>
+    <form method="dialog"><button type="submit">닫기</button></form>
+  </dialog>
+  <div th:replace="~{layout :: preview}"></div>
+</main>
+<script th:src="@{/photo-navigation.js}" defer></script>
+<script th:src="@{/image-preview.js}" defer></script>
+<script th:src="@{/breed-alias.js}" defer></script>
+</body>
+</html>

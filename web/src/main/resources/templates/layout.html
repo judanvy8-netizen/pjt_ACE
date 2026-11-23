@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title + ' · ACE'}">ACE</title>
+  <script>try { document.documentElement.dataset.theme = localStorage.getItem('ace-theme') === 'dark' ? 'dark' : 'light'; } catch(e) { document.documentElement.dataset.theme = 'light'; }</script>
+  <link rel="stylesheet" th:href="@{/ace.css}">
+  <script th:src="@{/theme.js}" defer></script>
+  <script th:src="@{/server-status.js}" defer></script>
+</head>
+<body>
+<header th:fragment="header">
+  <a class="brand" th:href="@{/}">ACE <span>반려동물 분석</span></a>
+  <button type="button" class="theme-toggle" data-theme-toggle aria-label="다크 테마 켜기" aria-pressed="false" title="밝게/어둡게">☾</button>
+  <nav aria-label="주 메뉴">
+    <a th:href="@{/versions}">버전 비교</a><a th:href="@{/analyze}">사진 분석</a>
+    <a th:href="@{/history}">분석 이력</a>
+    <a th:href="@{/performance}">성능 검증</a><a th:href="@{/technology}">기술·판정 규칙</a>
+    <a th:href="@{/source-structure}">소스 구조</a><a th:href="@{/db-design}">DB 설계</a>
+    <details class="server-environment">
+      <summary>서버 환경</summary>
+      <div class="panel server-panel">
+        <div class="server-panel-heading">
+          <h2>서버 연결 상태</h2>
+          <button type="button" data-status-refresh>다시 확인</button>
+          <button type="button" data-status-close aria-label="서버 연결 상태 닫기">닫기</button>
+        </div>
+        <p class="hint" data-status-time role="status">서버 상태를 확인합니다.</p>
+        <ul class="server-status-list">
+          <li th:data-status-url="@{/api/server-status/web}">
+            <strong>Spring Boot 웹 서버</strong><span data-server-state>확인 전</span><p data-server-detail></p>
+          </li>
+          <li th:data-status-url="@{/api/server-status/python}">
+            <strong>Python AI 서버</strong><span data-server-state>확인 전</span><p data-server-detail></p>
+          </li>
+          <li th:data-status-url="@{/api/server-status/database}">
+            <strong>MySQL DB 서버</strong><span data-server-state>확인 전</span><p data-server-detail></p>
+          </li>
+        </ul>
+        <noscript>서버 상태 조회에는 JavaScript가 필요합니다.</noscript>
+      </div>
+    </details>
+  </nav>
+</header>
+<dialog th:fragment="preview" id="image-preview" aria-labelledby="preview-title">
+  <form method="dialog"><button autofocus>닫기</button></form>
+  <h2 id="preview-title"></h2>
+  <img alt="">
+</dialog>
+</body>
+</html>

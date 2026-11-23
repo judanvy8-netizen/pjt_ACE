@@ -1,0 +1,51 @@
+﻿filename,object_no,detected_species,det_confidence,class_label,class_confidence,species_match
+img_001.jpg,1,dog,0.8789,퍼그,0.9889,yes
+img_002.jpg,1,dog,0.8938,치와와,0.8539,yes
+img_003.jpg,1,dog,0.913,복서,0.9147,yes
+img_004.jpg,1,dog,0.839,골든 리트리버,0.973,yes
+img_005.jpg,1,dog,0.9179,저먼 셰퍼드,0.9963,yes
+img_006.jpg,1,dog,0.8811,달마티안,0.9667,yes
+img_007.jpg,1,dog,0.5636,시베리안 허스키,0.5972,yes
+img_009.jpg,1,dog,0.9021,블렌하임 스패니얼,0.8724,yes
+img_010.jpg,1,dog,0.8969,바셋하운드,0.5286,yes
+img_011.jpg,1,dog,0.8795,복서,0.7963,yes
+img_012.jpg,1,cat,0.8697,아비시니안,0.9348,yes
+img_013.jpg,1,cat,0.7198,벵갈,0.7211,yes
+img_014.jpg,1,cat,0.851,버만,0.8896,yes
+img_015.jpg,1,cat,0.2571,페르시안,0.2681,yes
+img_016.jpg,1,cat,0.5612,이집션 마우,0.388,yes
+img_017.jpg,1,cat,0.7762,메인쿤,0.8329,yes
+img_018.jpg,1,dog,0.6905,페르시안 고양이(개 품종 아님),0.9491,no
+img_019.jpg,1,cat,0.9453,페르시안,0.5548,yes
+img_020.jpg,1,cat,0.8936,러시안 블루,0.8714,yes
+img_022.jpg,1,dog,0.7588,비글,0.699,yes
+img_022.jpg,2,dog,0.6976,비글,0.8342,yes
+img_023.jpg,1,dog,0.9351,블렌하임 스패니얼,0.9723,yes
+img_023.jpg,2,dog,0.9222,블렌하임 스패니얼,0.9739,yes
+img_024.jpg,1,dog,0.857,퍼그,0.9576,yes
+img_024.jpg,2,dog,0.4157,그레이트데인,0.3413,yes
+img_025.jpg,1,dog,0.9292,번역 미등록(malamute),0.4509,yes
+img_025.jpg,2,dog,0.8608,번역 미등록(malamute),0.6341,yes
+img_026.jpg,1,dog,0.9123,비글,0.8061,yes
+img_026.jpg,2,dog,0.8614,펨브로크 웰시 코기,0.7584,yes
+img_027.jpg,1,cat,0.549,벵갈,0.2911,yes
+img_028.jpg,1,cat,0.7434,벵갈,0.8532,yes
+img_028.jpg,2,cat,0.3192,메인쿤,0.833,yes
+img_029.jpg,1,cat,0.6918,페르시안,0.6277,yes
+img_029.jpg,2,cat,0.5949,스핑크스,0.3252,yes
+img_030.jpg,1,cat,0.877,페르시안,0.8395,yes
+img_030.jpg,2,cat,0.8138,페르시안,0.7419,yes
+img_031.jpg,1,cat,0.6416,랙돌,0.6134,yes
+img_031.jpg,2,cat,0.2955,버만,0.4989,yes
+img_032.jpg,1,cat,0.9103,랙돌,0.7774,yes
+img_032.jpg,2,dog,0.9011,래브라도 리트리버,0.4427,yes
+img_033.jpg,1,cat,0.834,랙돌,0.3901,yes
+img_033.jpg,2,cat,0.5334,랙돌,0.7172,yes
+img_034.jpg,1,dog,0.7992,번역 미등록(Yorkshire_terrier),0.867,yes
+img_034.jpg,2,cat,0.7326,벵갈,0.9632,yes
+img_035.jpg,1,dog,0.9512,도베르만,0.8521,yes
+img_035.jpg,2,dog,0.9248,노르웨이 엘크하운드,0.8267,yes
+img_035.jpg,3,dog,0.9169,로트바일러,0.4869,yes
+img_036.jpg,1,dog,0.9113,비글,0.5285,yes
+img_036.jpg,2,dog,0.5173,휘핏,0.3698,yes
+img_039.jpg,1,dog,0.4852,앙고라 토끼(개·고양이 품종 아님),0.9192,no

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav class="photo-navigation" aria-label="사진 탐색" th:fragment="controls(navigation)"
+     th:with="previous=${navigation.previous()}, next=${navigation.next()}">
+  <a th:if="${previous != null}" th:href="@{${navigation.path(previous)}}">← 이전 사진</a>
+  <span th:if="${previous == null}" aria-disabled="true">← 이전 사진</span>
+  <label for="photo-select">사진 선택</label>
+  <select id="photo-select">
+    <option th:each="choice, stat : ${navigation.choices}"
+            th:value="@{${navigation.path(choice)}}"
+            th:selected="${stat.index == navigation.index}"
+            th:text="|${#numbers.formatInteger(stat.count, 2)} · ${choice.filename}|"></option>
+  </select>
+  <span class="hint" th:text="|${navigation.index + 1} / ${navigation.choices.size()}|"></span>
+  <a th:if="${next != null}" th:href="@{${navigation.path(next)}}">다음 사진 →</a>
+  <span th:if="${next == null}" aria-disabled="true">다음 사진 →</span>
+</nav>
+</body>
+</html>

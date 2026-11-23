@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('버전 비교')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main>
+  <h1>버전 비교</h1>
+  <p><a th:href="@{/performance}">성능 검증 그래프와 기준 사진 지도</a></p>
+  <p><strong>기준 사진 40장</strong> · <a th:href="@{/versions/datasets}">웹에서 분석한 데이터셋 선택</a></p>
+  <p>네 버전의 결과를 같은 사진의 고양이·개 정답과 비교합니다.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>버전</th><th>주요 기능</th><th>사용 모델</th><th>마릿수 일치</th><th>이전 버전 대비</th><th>누락 · 점검 행</th><th>고양이 / 개 MAE</th><th>개수 판정</th><th>품종 전체 / 지원 기준</th></tr></thead>
+    <tbody><tr th:each="item : ${summaries}">
+      <th scope="row"><code th:text="${item.version.id}"></code></th>
+      <td><strong th:text="${item.version.label}"></strong><br><span th:text="${item.version.description}"></span></td>
+      <td><div>검출 <code>yolo11n.pt</code></div>
+        <div th:if="${item.version.id == 'main'}">품종 분류 해당 없음</div>
+        <div th:if="${item.version.id == 'main-1'}">개·고양이 <code>yolo11n-cls.pt</code></div>
+        <div th:if="${item.version.id == 'main-2'}">개 <code>yolo11n-cls.pt</code><br>고양이 <code>cat_oxford_mobilenetv3.pt</code></div>
+        <div th:if="${item.version.id == 'main-3'}">종·견종 <code>ViT-B/16</code><br>묘종 <code>Oxford MobileNetV3</code></div>
+      </td>
+      <td th:text="${item.missing == item.total ? '미측정' : item.correct + ' / ' + item.total + '장'}"></td>
+      <td th:text="${item.version.id == 'main' ? '첫 버전' : (item.missing == item.total ? '비교 전' : '개선 ' + item.improved + '장 · 새 오답 ' + item.regressed + '장')}"></td>
+      <td th:text="|${item.missing} · ${item.issues}|"></td>
+      <td th:text="${item.catMae == null ? '미평가' : #numbers.formatDecimal(item.catMae,1,3) + ' / ' + #numbers.formatDecimal(item.dogMae,1,3)}"></td>
+      <td><div th:each="entry : ${item.countDistribution}" th:text="|${entry.key} ${entry.value}|"></div>
+        <div th:if="${item.version.id != 'main'}" th:text="|절대 오차 증가 ${item.worsened}장|"></div></td>
+      <td><span th:text="${item.breedTotal == 0 ? '평가 제외' : item.breedCorrect + '/' + item.breedTotal}"></span>
+        <div th:if="${item.breedTotal > 0}" th:text="${item.breedSupportUnknown > 0 ? '지원 기준: 매핑 확인 필요' :
+            (item.breedTotal == item.unsupported ? '지원 품종 없음' : '지원 기준 ' + item.breedCorrect + '/' + (item.breedTotal - item.unsupported))}"></div>
+        <div th:if="${item.unsupported > 0}" th:text="|미지원 ${item.unsupported}|"></div></td>
+    </tr></tbody>
+  </table></div>
+  <section id="current-benchmark">
+    <h2>사진별 비교</h2>
+    <p>개·고양이가 아닌 사진은 0 / 0이면 정답으로 계산하고, 개·고양이로 검출하면 오탐으로 계산합니다.</p>
+    <div class="actions">
+      <a th:href="@{/versions/photos/img_023.jpg}">T23</a><a th:href="@{/versions/photos/img_028.jpg}">T28</a>
+      <a th:href="@{/versions/photos/img_029.jpg}">T29</a>
+    </div>
+    <p th:if="${photos.isEmpty()}">기준 정답 자료를 읽을 수 없습니다. 프로젝트 경로를 확인해 주세요.</p>
+    <div class="table-wrap" th:unless="${photos.isEmpty()}"><table>
+      <thead><tr><th>사진</th><th>정답 고양이 / 개</th><th>main</th><th>main-1</th><th>main-2</th><th>main-3</th><th>정답 품종·위치</th></tr></thead>
+      <tbody><tr th:each="photo, stat : ${photos}">
+        <td><a th:href="@{/versions/photos/{name}(name=${photo.filename})}" th:text="${photo.filename}"></a></td>
+        <td th:text="${photo.counts.display()}"></td>
+        <td th:each="run : ${currentRuns.values()}" th:with="result=${run.photos[stat.index]}"
+            th:text="${result.actual.display() + ' · ' + (result.falsePositive ? '오탐' : (result.matched ? '일치' : '불일치'))}"></td>
+        <td th:text="${photo.breeds}"></td>
+      </tr></tbody>
+    </table></div>
+  </section>
+</main>
+</body>
+</html>

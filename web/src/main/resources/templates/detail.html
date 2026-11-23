@@ -1,0 +1,66 @@
+﻿<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('분석 상세')}"></head>
+<body>
+<header th:replace="~{layout :: header}"></header>
+<main>
+  <a th:href="@{/history}">← 분석 이력</a>
+  <a th:if="${roundId}" th:href="@{/rounds/{id}/photos/{input}(id=${roundId},input=${run.inputId})}">회차 사진 비교</a>
+  <h1 th:text="${run.filename}">분석 상세</h1>
+  <p th:if="${notice}" th:text="${notice}" class="notice" role="status"></p>
+  <section th:unless="${run.status == 'SUCCEEDED'}" class="panel">
+    <h2>분석 결과가 아직 저장되지 않았습니다</h2>
+    <p th:text="${run.error ?: '아래 버튼으로 같은 실행을 다시 처리할 수 있습니다.'}"></p>
+    <form method="post" th:action="@{/history/{id}/retry(id=${run.runId})}"><button>같은 실행 다시 시도</button></form>
+  </section>
+  <div th:if="${run.status == 'SUCCEEDED'}">
+    <p class="summary" th:text="|고양이 ${run.catCount}마리 · 개 ${run.dogCount}마리|"></p>
+    <p class="hint" th:text="|${run.engine} · 처리 시간 ${run.elapsedMs}ms|"></p>
+    <div class="images">
+      <figure><figcaption>원본</figcaption><img th:src="@{/media/{id}/original(id=${run.runId})}" alt="업로드한 원본 사진"></figure>
+      <figure><figcaption>검출 결과</figcaption><img th:src="@{/media/{id}/result(id=${run.runId})}" alt="박스 번호와 품종 후보를 표시한 사진"></figure>
+    </div>
+    <section>
+      <h2>박스별 검출 결과</h2>
+      <p th:if="${pets.isEmpty()}">검출된 개·고양이가 없습니다.</p>
+      <div class="table-wrap" th:unless="${pets.isEmpty()}">
+        <table><thead><tr><th>번호</th><th>검출 종류</th><th>검출 점수</th><th>품종 후보</th><th>품종 점수</th><th>분류 상태</th></tr></thead>
+          <tbody><tr th:each="pet : ${pets}">
+            <td th:text="${pet.number}"></td><td th:text="${pet.species == 'cat' ? '고양이' : '개'}"></td>
+            <td th:text="${#numbers.formatDecimal(pet.detectionScore * 100, 1, 1) + '%'}"></td>
+            <td th:text="${pet.breed}"></td>
+            <td th:text="${pet.breedScore == null ? '–' : #numbers.formatDecimal(pet.breedScore * 100, 1, 1) + '%'}"></td>
+            <td th:text="${pet.classificationStatus == 'no' ? '종류 불확실' : (pet.classificationStatus == 'crop_empty' ? '분류 실패' : (pet.classificationStatus == 'yes' ? '검출 종류와 일치' : '확인 불가'))}"></td>
+          </tr></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>CSV 정답 검수</h2>
+      <div th:if="${reference != null and reference.truth != null}">
+        <p th:text="|고양이 정답 ${reference.truth.counts.cats}마리 · 개 정답 ${reference.truth.counts.dogs}마리|"></p>
+        <p th:text="|종류: ${reference.truth.breeds}|"></p>
+        <p th:unless="${reference.truth.note.isBlank()}" th:text="|비고: ${reference.truth.note}|"></p>
+        <form method="post" th:action="@{/history/{id}/truth(id=${run.runId})}">
+          <button>검수 완료·정답 저장</button>
+        </form>
+      </div>
+      <p th:if="${reference == null or reference.truth == null}">등록된 정답 없음 · 미평가</p>
+    </section>
+    <section th:unless="${evaluations.isEmpty()}">
+      <h2>정답과 평가 이력</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>정답 버전</th><th>고양이 / 개 정답</th><th>종류별 절대 오차</th><th>마릿수</th><th>품종 일치</th></tr></thead>
+        <tbody><tr th:each="ev : ${evaluations}">
+          <td th:text="${ev.version}"></td><td th:text="|${ev.cats} / ${ev.dogs}|"></td>
+          <td th:text="|${ev.catError} / ${ev.dogError}|"></td><td th:text="${ev.countLabel()}"></td>
+          <td th:text="${run.variant == 'main' ? '해당 없음' : ev.verdict().breedLabel()}"></td>
+        </tr></tbody>
+      </table></div>
+      <h3 th:unless="${expected.isEmpty()}">최신 정답의 개체별 비교</h3>
+      <ul><li th:each="pet : ${expected}" th:text="|${pet.number}. ${pet.breed} · ${pet.position}|"></li></ul>
+    </section>
+  </div>
+</main>
+</body>
+</html>
