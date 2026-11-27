@@ -13,11 +13,45 @@ public final class BenchmarkDO {
     }
 
     public record Truth(String filename, Counts counts, String breeds, String note) {}
-    public record Version(String id, String label, String description) {}
+    public record Version(String id, String label, String description, String models) {}
+    /** Count agreement only; no ground-truth boxes exist for object-level precision. */
+    public record SpeciesCount(int matched, int expected, int predicted) {
+        public int shortage() { return expected - matched; }
+        public int excess() { return predicted - matched; }
+    }
+    public record CountMismatch(String filename, Counts expected, Counts predicted) {
+        public boolean bothWrong() {
+            return expected.cats() != predicted.cats() && expected.dogs() != predicted.dogs();
+        }
+    }
     public record Summary(Version version, int correct, int total, int missing, int issues,
-                          int improved, int regressed, Double catMae, Double dogMae, int worsened, int breedCorrect, int breedTotal, int unsupported, int breedSupportUnknown, Map<String,Integer> countDistribution) {}
+                          int improved, int regressed, Double catMae, Double dogMae, int worsened,
+                          SpeciesCount cats, SpeciesCount dogs,
+                          int breedCorrect, int breedTotal, int unsupported, int breedSupportUnknown,
+                          Map<String,Integer> countDistribution, List<CountMismatch> mismatches) {
+        public double photoPercent() { return total == 0 ? 0 : 100.0 * correct / total; }
+        public double breedPercent() { return breedTotal == 0 ? 0 : 100.0 * breedCorrect / breedTotal; }
+        public int bothWrongPhotos() {
+            return (int) mismatches.stream().filter(CountMismatch::bothWrong).count();
+        }
+        public int oneWrongPhotos() { return mismatches.size() - bothWrongPhotos(); }
+        public int countErrors() {
+            return cats.shortage() + cats.excess() + dogs.shortage() + dogs.excess();
+        }
+    }
     public record Result(Version version, Counts counts, String status, boolean image,
-                         List<Map<String, String>> classes, boolean classificationWarning, kr.ace.web.evaluation.Verdict verdict) {}
+                         List<Map<String, String>> classes, boolean classificationWarning, kr.ace.web.evaluation.Verdict verdict) {
+        public Double breedConfidence(Map<String, String> row) {
+            String value = row.get("class_confidence");
+            if (value == null || value.isBlank()) return null;
+            try {
+                double score = Double.parseDouble(value);
+                return score >= 0 && score <= 1 ? score : null;
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+    }
     public record Photo(Truth truth, boolean image, List<Result> results) {}
 
     public record CurrentPhoto(String filename, Counts expected, Counts actual,

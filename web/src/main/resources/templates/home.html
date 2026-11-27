@@ -22,14 +22,18 @@
   </section>
   <section>
     <h2>버전별 개선 과정</h2>
-    <p>사진 40장의 개·고양이 마릿수 일치 결과입니다. 개·고양이가 없는 사진도 0 / 0으로 맞히면 정답에 포함합니다.</p>
-    <div class="version-grid">
+    <p>개와 고양이 수가 둘 다 맞아야 정답 1장입니다. 한 사진에서 두 종류를 틀려도 오답은 1장입니다.</p>
+    <div class="version-grid version-metrics-grid">
       <article class="panel version-card" th:each="item : ${summaries}">
         <code th:text="${item.version.id}"></code><h3 th:text="${item.version.label}"></h3>
-        <p class="score" th:text="${item.missing == item.total ? '미측정' : item.correct + '/' + item.total + '장'}"></p>
+        <div th:replace="~{photo-score :: summary(${item})}"></div>
+        <div th:replace="~{animal-metrics :: counts(${item})}"></div>
+        <p th:replace="~{breed-display :: match(${item})}"></p>
         <p th:text="${item.version.description}"></p>
+        <p class="hint version-models"><strong>사용 모델</strong> <span th:text="${item.version.models}"></span></p>
       </article>
     </div>
+    <p class="hint metrics-note">개·고양이가 없는 사진의 정답은 각각 0마리입니다. 품종명 일치율은 사진마다 종과 품종 이름의 구성을 비교한 값입니다.</p>
   </section>
   <section class="demo-section">
     <figure><img th:src="@{/versions/images/main-2/img_029.jpg}" alt="두 고양이의 검출 결과" loading="lazy"></figure>

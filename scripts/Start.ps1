@@ -5,7 +5,8 @@
 [CmdletBinding()]
 param(
     [string]$Jdk17Home,
-    [string]$StoragePath
+    [string]$StoragePath,
+    [switch]$Restart
 )
 
 $ErrorActionPreference = 'Stop'
@@ -13,6 +14,7 @@ $root = Split-Path -Parent $PSScriptRoot
 $web = Join-Path $root 'web'
 $python = Join-Path $root '.venv\Scripts\python.exe'
 $jar = Join-Path $web 'build\libs\ace-web-1.0.0.jar'
+$jarDir = Split-Path -Parent $jar
 $runDir = Join-Path $root '.run'
 $logDir = Join-Path $root 'logs'
 $pidFile = Join-Path $runDir 'ace-processes.json'
@@ -128,7 +130,12 @@ function Ensure-MySQL {
 try {
     Write-Host '[1/4] Checking environment...' -ForegroundColor Cyan
     if (-not (Test-Path -LiteralPath $python)) { throw "Python venv not found: $python" }
-    if (-not (Test-Path -LiteralPath $jar)) { throw "Built JAR not found: $jar (run Gradle bootJar first)" }
+    $currentBuild = Get-Item -LiteralPath $jar -ErrorAction SilentlyContinue
+    $pendingBuild = Get-ChildItem -LiteralPath $jarDir -Filter 'ace-web-1.0.0.next*.jar' -File -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTimeUtc -Descending | Select-Object -First 1
+    if (($null -eq $currentBuild) -and ($null -eq $pendingBuild)) {
+        throw "Built JAR not found: $jar (run Gradle bootJar first)"
+    }
     $java = Find-Jdk17Java $Jdk17Home
     Write-Host "JDK 17: $java" -ForegroundColor Green
 
@@ -142,10 +149,19 @@ try {
     $env:ACE_STORAGE = [System.IO.Path]::GetFullPath($selectedStorage)
     Write-Host "ACE storage: $env:ACE_STORAGE" -ForegroundColor Green
     Ensure-MySQL
+    if ($Restart -and (Test-Path -LiteralPath $pidFile)) {
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot 'Stop.ps1')
+        if ($LASTEXITCODE -ne 0) { throw 'Could not stop the previous ACE servers.' }
+    }
     if ((Test-Port 8090) -or (Test-Port 8080)) { throw 'Port 8090 or 8080 is already in use. Stop existing servers first.' }
     if (Test-Path -LiteralPath $pidFile) { throw "Previous start record exists: $pidFile. Run Stop.ps1 first (or inspect it if stale)." }
 
     New-Item -ItemType Directory -Force -Path $runDir, $logDir | Out-Null
+    if (($null -ne $pendingBuild) -and
+        (($null -eq $currentBuild) -or ($pendingBuild.LastWriteTimeUtc -gt $currentBuild.LastWriteTimeUtc))) {
+        $jar = $pendingBuild.FullName
+        Write-Host 'Using the updated ACE web build.' -ForegroundColor Green
+    }
 
     Write-Host '[2/4] Starting Python AI server (8090)...' -ForegroundColor Cyan
     $pyArgs = @('-m', 'uvicorn', 'app.ai_server:app', '--host', '127.0.0.1', '--port', '8090')

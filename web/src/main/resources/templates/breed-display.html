@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <p class="breed-metric" th:fragment="match(item)">
+    <span>품종명 구성 일치</span>
+    <strong th:if="${item.breedTotal == 0}">미측정</strong>
+    <strong th:if="${item.breedTotal > 0}" th:text="|${#numbers.formatDecimal(item.breedPercent(), 1, 1)}% · ${item.breedCorrect} / ${item.breedTotal}마리|"></strong>
+  </p>
+  <th:block th:fragment="candidate(name, score)">
+    <span th:text="${#strings.isEmpty(name) ? '–' : name}"></span>
+    <small class="hint" th:if="${score != null and not #strings.isEmpty(name)}"
+           th:text="|(${#numbers.formatDecimal(score * 100, 1, 1)}%)|"></small>
+  </th:block>
+</body>
+</html>

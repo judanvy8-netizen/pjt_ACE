@@ -16,14 +16,17 @@
         th:action="@{/rounds/{id}/retry-failed(id=${round.id})}"><button>실패한 분석 모두 다시 시도</button></form>
   <section>
     <h2>버전별 개선 과정</h2>
-    <p>홈과 같은 기준 사진 40장의 개·고양이 마릿수 일치 결과입니다. 아래 사진별 결과는 이 회차의 분석입니다.</p>
-    <div class="version-grid">
+    <p>홈과 같은 기준 사진 40장의 결과입니다. 아래 사진별 결과는 이 회차의 분석입니다.</p>
+    <div class="version-grid version-metrics-grid">
       <article class="panel version-card" th:each="item : ${summaries}">
         <code th:text="${item.version.id}"></code><h3 th:text="${item.version.label}"></h3>
-        <p class="score" th:text="${item.missing == item.total ? '미측정' : item.correct + '/' + item.total + '장'}"></p>
+        <div th:replace="~{photo-score :: summary(${item})}"></div>
+        <div th:replace="~{animal-metrics :: counts(${item})}"></div>
+        <p th:replace="~{breed-display :: match(${item})}"></p>
         <p th:text="${item.version.description}"></p>
       </article>
     </div>
+    <p class="hint metrics-note">한 사진에서 두 종류를 틀려도 오답은 1장입니다. 마릿수 오류에는 개와 고양이의 부족과 초과를 모두 더합니다.</p>
   </section>
   <section>
     <h2>사진별 결과</h2>

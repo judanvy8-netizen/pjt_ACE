@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <div th:fragment="summary(item)">
+    <div class="photo-score">
+      <div>
+        <span class="metric-label" th:text="|기준 사진 ${item.total}장|"></span>
+        <p class="score" th:text="${item.missing == item.total ? '미측정' : #numbers.formatDecimal(item.photoPercent(), 1, 1) + '%'}"></p>
+      </div>
+      <div class="photo-tally" th:if="${item.missing != item.total}">
+        <strong class="photo-correct" th:text="|정답 ${item.correct}장|"></strong>
+        <strong class="photo-incorrect" th:text="|오답 ${item.mismatches.size()}장|"></strong>
+        <span th:if="${item.missing > 0}" th:text="|미측정 ${item.missing}장|"></span>
+      </div>
+    </div>
+    <div class="photo-breakdown" th:unless="${item.mismatches.isEmpty()}">
+      <p th:text="|한 종류만 틀림 ${item.oneWrongPhotos()}장 + 두 종류 모두 틀림 ${item.bothWrongPhotos()}장|"></p>
+      <details class="photo-mismatches">
+        <summary th:text="|오답 사진 ${item.mismatches.size()}장 보기|"></summary>
+        <div class="table-wrap">
+          <table>
+            <caption>개 / 고양이 순서</caption>
+            <thead><tr><th scope="col">사진</th><th scope="col">정답</th><th scope="col">예측</th><th scope="col">틀린 종류</th></tr></thead>
+            <tbody>
+              <tr th:each="row : ${item.mismatches}">
+                <th scope="row"><a th:href="@{/versions/photos/{name}(name=${row.filename})}" th:text="${row.filename}"></a></th>
+                <td th:text="|${row.expected.dogs} / ${row.expected.cats}|"></td>
+                <td th:text="|${row.predicted.dogs} / ${row.predicted.cats}|"></td>
+                <td th:text="${row.bothWrong() ? '개·고양이' : (row.expected.dogs != row.predicted.dogs ? '개' : '고양이')}"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+  </div>
+</body>
+</html>

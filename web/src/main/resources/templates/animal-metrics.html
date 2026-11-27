@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <div th:fragment="counts(item)" th:if="${item.missing != item.total}">
+    <p class="animal-error-total" th:if="${item.missing == 0}"
+       th:text="|마릿수 오류 ${item.countErrors()}건 (부족·초과 합계)|"></p>
+    <div class="animal-metrics">
+      <th:block th:replace="~{animal-metrics :: species('개', ${item.dogs}, ${item.missing == 0})}"></th:block>
+      <th:block th:replace="~{animal-metrics :: species('고양이', ${item.cats}, ${item.missing == 0})}"></th:block>
+    </div>
+  </div>
+  <p th:fragment="species(name, counts, complete)">
+    <span th:text="|${name} 마릿수 기준 적중|"></span>
+    <strong th:text="|${counts.matched} / ${counts.expected}마리|"></strong>
+    <small th:if="${complete}" th:text="|부족 ${counts.shortage()} · 초과 ${counts.excess()}|"></small>
+    <small th:text="|예측 ${counts.predicted}마리|"></small>
+  </p>
+</body>
+</html>

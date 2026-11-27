@@ -19,10 +19,18 @@ import kr.ace.web.evaluation.Verdict;
 @Service
 public class BenchmarkService {
     private static final List<Version> VERSIONS = List.of(
-            new Version("main", "개·고양이 검출", "YOLO로 위치를 찾고 종류별 마릿수를 셉니다."),
-            new Version("main-1", "품종 후보 분류", "검출 영역을 잘라 ImageNet 분류기에 전달합니다."),
-            new Version("main-2", "품종 분류와 검출 보정", "고양이 전용 모델, 중복 제거, 넓은 박스 재검출을 적용합니다."),
-            new Version("main-3", "ViT 품종 분류와 종 보정", "YOLO 검출 뒤 ViT-B/16으로 견종·종을 확인하고 Oxford 모델로 묘종을 분류합니다."));
+            new Version("main", "개·고양이 검출",
+                    "YOLO로 위치를 찾고 종류별 마릿수를 셉니다.",
+                    "검출 YOLO11n"),
+            new Version("main-1", "품종 후보 분류",
+                    "main의 검출 결과를 유지하면서 각 동물의 품종 후보를 붙입니다.",
+                    "검출 YOLO11n · 분류 YOLO11n-cls (ImageNet)"),
+            new Version("main-2", "품종 분류와 검출 보정",
+                    "중복 검출을 줄이고 넓은 박스를 다시 확인합니다. 고양이 전용 품종 분류기를 추가합니다.",
+                    "검출 YOLO11n · 견종 YOLO11n-cls · 묘종 MobileNetV3-Large (Oxford)"),
+            new Version("main-3", "ViT 품종 분류와 종 보정",
+                    "YOLO 검출 뒤 ViT-B/16으로 견종·종을 확인하고 Oxford 모델로 묘종을 분류합니다.",
+                    "검출 YOLO11n · 종 보정·견종 ViT-B/16 · 묘종 MobileNetV3-Large (Oxford)"));
     private final BenchmarkRepository files;
 
     private final BreedRules rules;
@@ -140,13 +148,17 @@ public class BenchmarkService {
 
     public List<Summary> summaries() {
         var truth = truth();
+        int expectedCats = truth.values().stream().mapToInt(item -> item.counts().cats()).sum();
+        int expectedDogs = truth.values().stream().mapToInt(item -> item.counts().dogs()).sum();
         var previous = Map.<String, Counts>of();
         var summaries = new ArrayList<Summary>();
         for (Version version : VERSIONS) {
             var table = predictions(version);
             int correct = 0, missing = 0, improved = 0, regressed = 0, catError = 0, dogError = 0, worsened = 0;
+            int matchedCats = 0, matchedDogs = 0, predictedCats = 0, predictedDogs = 0;
             int breedCorrect = 0, breedTotal = 0, unsupported = 0, unknown = 0;
             var distribution = new LinkedHashMap<String,Integer>();
+            var mismatches = new ArrayList<CountMismatch>();
             var classifications = classTable(version);
             for (var item : truth.values()) {
                 Counts current = table.values().get(item.filename());
@@ -157,6 +169,10 @@ public class BenchmarkService {
                 }
                 int dc = current.cats() - item.counts().cats();
                 int dd = current.dogs() - item.counts().dogs();
+                matchedCats += Math.min(current.cats(), item.counts().cats());
+                matchedDogs += Math.min(current.dogs(), item.counts().dogs());
+                predictedCats += current.cats();
+                predictedDogs += current.dogs();
                 catError += Math.abs(dc);
                 dogError += Math.abs(dd);
                 distribution.merge(Verdict.countLabel(item.counts().cats(), item.counts().dogs(), dc, dd), 1, Integer::sum);
@@ -173,6 +189,8 @@ public class BenchmarkService {
                 boolean matched = current.equals(item.counts());
                 if (matched) {
                     correct++;
+                } else {
+                    mismatches.add(new CountMismatch(item.filename(), item.counts(), current));
                 }
                 if (prior != null && matched != prior.equals(item.counts())) {
                     if (matched) improved++;
@@ -182,8 +200,11 @@ public class BenchmarkService {
             int measured = truth.size() - missing;
             summaries.add(new Summary(version, correct, truth.size(), missing, table.issues(), improved, regressed,
                     measured == 0 ? null : (double) catError / measured,
-                    measured == 0 ? null : (double) dogError / measured, worsened, breedCorrect, breedTotal, unsupported,
-                    unknown, distribution));
+                    measured == 0 ? null : (double) dogError / measured, worsened,
+                    new SpeciesCount(matchedCats, expectedCats, predictedCats),
+                    new SpeciesCount(matchedDogs, expectedDogs, predictedDogs),
+                    breedCorrect, breedTotal, unsupported,
+                    unknown, distribution, List.copyOf(mismatches)));
             previous = table.values();
         }
         return summaries;

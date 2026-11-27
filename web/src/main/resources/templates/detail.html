@@ -24,12 +24,11 @@
       <h2>박스별 검출 결과</h2>
       <p th:if="${pets.isEmpty()}">검출된 개·고양이가 없습니다.</p>
       <div class="table-wrap" th:unless="${pets.isEmpty()}">
-        <table><thead><tr><th>번호</th><th>검출 종류</th><th>검출 점수</th><th>품종 후보</th><th>품종 점수</th><th>분류 상태</th></tr></thead>
+        <table><thead><tr><th>번호</th><th>검출 종류</th><th>검출 점수</th><th>품종 후보와 점수</th><th>분류 상태</th></tr></thead>
           <tbody><tr th:each="pet : ${pets}">
             <td th:text="${pet.number}"></td><td th:text="${pet.species == 'cat' ? '고양이' : '개'}"></td>
             <td th:text="${#numbers.formatDecimal(pet.detectionScore * 100, 1, 1) + '%'}"></td>
-            <td th:text="${pet.breed}"></td>
-            <td th:text="${pet.breedScore == null ? '–' : #numbers.formatDecimal(pet.breedScore * 100, 1, 1) + '%'}"></td>
+            <td><th:block th:replace="~{breed-display :: candidate(${pet.breed}, ${pet.breedScore})}"></th:block></td>
             <td th:text="${pet.classificationStatus == 'no' ? '종류 불확실' : (pet.classificationStatus == 'crop_empty' ? '분류 실패' : (pet.classificationStatus == 'yes' ? '검출 종류와 일치' : '확인 불가'))}"></td>
           </tr></tbody>
         </table>
